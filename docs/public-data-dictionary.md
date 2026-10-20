@@ -39,3 +39,9 @@
 The key of a version is `(site_id, week_end, issued_on)`. Multiple versions on different dates are expected. Duplicate keys on the same date fail instead of being arbitrarily ordered. The `source_line` is the line of the selected version, so changing input row order changes that locator but not numerical results.
 
 For each cutoff, `available_versions` counts only issued versions on or before it. `first_delay_days` and `selected_delay_days` are defined only from those available versions. `revision_*_delta` compares the selected version with the first available version when that version is valid and can be negative. No future values enter the calculation. `due_on = week_end + grace_days`; grace is an explicit user choice.
+
+## Consecutive-week denominator diagnostics
+
+`results_public/denominator_changes.csv` compares each usable week with exactly the previous calendar week in the same category. `test_count_ratio` is current tests / previous tests; `relative_test_count_change` is (current − previous) / previous. The flag uses the absolute relative change and is strict: exactly 50% does not exceed a 0.5 threshold. It is a review aid, not a validity judgment or exclusion rule.
+
+`diagnostic_status` distinguishes evaluated pairs, no preceding calendar week, an unusable current or previous week, and a zero previous test count. Undefined ratios and flags remain blank in CSV and null in JSON. The series-level summary reports evaluable and flagged pair counts; unevaluable pairs are not silently counted as unflagged observations.

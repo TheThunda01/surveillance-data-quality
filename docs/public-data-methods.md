@@ -26,6 +26,10 @@ The public analysis repeats the summary after excluding observations newer than 
 
 Every window uses the same downloaded release. Excluding recent observation weeks does **not** reconstruct the data available on a past date. The tool refuses an `--as-of` date before this snapshot's capture date to avoid that interpretation. Its `posted` column is release metadata, not an individual specimen date or laboratory receipt time. It therefore cannot estimate laboratory reporting-delay distributions from this single file.
 
+## Consecutive-week denominator changes
+
+A review diagnostic compares test counts only when consecutive calendar weeks are usable in the same series and the previous count is positive. The signed relative change is `(current tests − previous tests) / previous tests`. Its absolute value is compared strictly with a configurable threshold, default 0.5. This is a transparent demonstration setting, not a validated universal standard. It does not remove records, alter their validity status, estimate incidence, or explain why a denominator changed. Missing or suppressed weeks are not bridged, and zero previous denominators yield an undefined ratio. The output reports both counts so a flagged change can be investigated in context.
+
 ## Genuine as-of selection and revision comparison
 
 `vintage_audit.py` accepts a separate table with an explicit `issued_on` for each full replacement report. It selects the newest version issued on or before the requested date and excludes later versions. A revised count is a replacement, not an additional count; downward corrections are allowed. Two records with the same key and issue date are ambiguous and fail validation. An invalid newest version is flagged rather than silently replaced with an older, valid-looking value.

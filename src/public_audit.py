@@ -136,6 +136,55 @@ def trailing_sensitivity(result:dict, as_of:date, lags=(0,7,14,28)) -> list[dict
     return output
 
 
+
+def denominator_changes(slots:list[dict], threshold:float=0.5) -> dict:
+    """Flag large relative count changes between consecutive usable weeks.
+
+    This is a diagnostic for review, not an exclusion rule, significance test,
+    or estimate of incidence. No comparison bridges an absent/unusable week.
+    """
+    cutoff=Decimal(str(threshold))
+    if not cutoff.is_finite() or cutoff<0:
+        raise ValueError('denominator-change threshold must be finite and nonnegative')
+    lookup={(r['pathogen'],parse_date(r['week_end'])):r for r in slots}
+    if len(lookup)!=len(slots):
+        raise ValueError('denominator diagnostic requires unique series-week slots')
+    rows=[]
+    for current in sorted(slots,key=lambda r:(r['pathogen'],r['week_end'])):
+        week=parse_date(current['week_end'])
+        previous_week=week-timedelta(days=7)
+        previous=lookup.get((current['pathogen'],previous_week))
+        item={'pathogen':current['pathogen'],'week_end':current['week_end'],
+              'previous_week_end':previous_week.isoformat(),
+              'previous_tests':previous['tests'] if previous and previous['status']=='usable' else None,
+              'current_tests':current['tests'] if current['status']=='usable' else None,
+              'test_count_ratio':None,'relative_test_count_change':None,
+              'change_exceeds_threshold':None,'diagnostic_status':None}
+        if current['status']!='usable':
+            item['diagnostic_status']='current_week_unusable'
+        elif previous is None:
+            item['diagnostic_status']='no_previous_calendar_week'
+        elif previous['status']!='usable':
+            item['diagnostic_status']='previous_week_unusable'
+        elif previous['tests']==0:
+            item['diagnostic_status']='previous_week_zero_tests'
+        else:
+            change=Decimal(current['tests']-previous['tests'])/Decimal(previous['tests'])
+            item.update(test_count_ratio=float(Decimal(current['tests'])/Decimal(previous['tests'])),
+                        relative_test_count_change=float(change),
+                        change_exceeds_threshold=abs(change)>cutoff,diagnostic_status='evaluated')
+        rows.append(item)
+    summaries=[]
+    for pathogen in dict.fromkeys(r['pathogen'] for r in rows):
+        selected=[r for r in rows if r['pathogen']==pathogen]
+        evaluated=[r for r in selected if r['diagnostic_status']=='evaluated']
+        summaries.append({'pathogen':pathogen,'evaluable_consecutive_pairs':len(evaluated),
+                          'flagged_pairs':sum(r['change_exceeds_threshold'] for r in evaluated),
+                          'largest_absolute_change_fraction':max((abs(r['relative_test_count_change']) for r in evaluated),default=None)})
+    return {'threshold_fraction':float(cutoff),'flag_rule':'absolute relative change strictly greater than threshold',
+            'purpose':'review diagnostic only; does not alter validity or exclude data','summary':summaries,'rows':rows}
+
+
 def write_csv(path:Path,rows:list[dict]):
     if not rows:
         raise ValueError('cannot write an empty table without a schema')
@@ -189,6 +238,7 @@ def main():
     parser.add_argument('--snapshot',type=Path,default=ROOT/'data/public')
     parser.add_argument('--output',type=Path,default=ROOT/'results_public')
     parser.add_argument('--as-of',type=parse_date,default=None)
+    parser.add_argument('--denominator-change-threshold',type=float,default=0.5,help='flag absolute consecutive-week test-count changes above this fraction; diagnostic only')
     args=parser.parse_args()
     try:
         if args.snapshot.resolve().is_relative_to(args.output.resolve()):
@@ -203,10 +253,14 @@ def main():
                               'analysis_as_of':as_of.isoformat(),'historical_vintages_available':False}
         sensitivity=trailing_sensitivity(result,as_of)
         result['trailing_window_sensitivity']=sensitivity
+        diagnostics=denominator_changes(result['slots'],args.denominator_change_threshold)
+        result['denominator_change_diagnostics']=diagnostics
         args.output.mkdir(parents=True,exist_ok=True)
         (args.output/'audit.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
         write_csv(args.output/'weekly_audit.csv',result['slots']);write_csv(args.output/'summary.csv',result['summary']);write_csv(args.output/'trailing_window_sensitivity.csv',sensitivity)
         chart(result['slots'],args.output/'weekly_positivity.svg')
+        write_csv(args.output/'denominator_changes.csv',diagnostics['rows'])
+        write_csv(args.output/'denominator_diagnostic_summary.csv',diagnostics['summary'])
         report=['# Real public-data audit: CDC NREVSS','',
         f"Pinned extract: **{manifest['selection']['first_week_end']}–{manifest['selection']['last_week_end']}**, retrieved **{captured}**. Source: CDC. This project is not endorsed by CDC or the U.S. government. The source data are freely available from the linked CDC dataset.",'',
         'This audit describes data in one extracted release. It does not measure the fraction of all laboratories reporting or the completeness of infections in the population.','',
@@ -218,6 +272,11 @@ def main():
         'The trailing-window analysis excludes weeks newer than 0, 7, 14, or 28 days before the analysis date. It reuses the same retrieved release. It is a sensitivity analysis of the observation window, **not** a recovery of values that were reported on an earlier date.','',
         '| Series | Days held out | Usable weeks | Retained test denominator | Positivity change (percentage points) |', '| --- | ---: | ---: | ---: | ---: |']
         report += [f"| {r['pathogen']} | {r['exclude_weeks_newer_than_days']} | {r['usable_weeks']} | {display_number(100*r['retained_test_denominator_fraction'] if r['retained_test_denominator_fraction'] is not None else None, 2)}% | {display_number(r['change_from_all_weeks_pp'], 4, True)} |" for r in sensitivity]
+        report += ['', '## Did the weekly test denominator change sharply?', '',
+        f"The review flag uses an absolute week-to-week test-count change **greater than {100*diagnostics['threshold_fraction']:.1f}%**. It compares consecutive usable calendar weeks only; a missing week or zero previous denominator leaves the ratio undefined. This setting is a demonstration choice, not a validated universal cutoff. Flagged records remain in every analysis.", '',
+        '| Series | Evaluable consecutive pairs | Flagged for review | Largest absolute change |', '| --- | ---: | ---: | ---: |']
+        report += [f"| {r['pathogen']} | {r['evaluable_consecutive_pairs']} | {r['flagged_pairs']} | {display_number(100*r['largest_absolute_change_fraction'] if r['largest_absolute_change_fraction'] is not None else None,2)}% |" for r in diagnostics['summary']]
+        report += ['', '[Inspect the week-level counts and ratios](denominator_changes.csv). A change can reflect testing, participation, calendar effects, or other factors; this file does not identify its cause and is not an incidence or outbreak indicator.', '']
         report += ['', 'No adjustment for underreporting, causal effect, or outbreak forecast is fitted. The `posted` field is treated as release metadata, never as an individual laboratory submission date. See the methods for why complete-looking rows can still be provisional.','',f"[Original dataset]({manifest['source_page']}) · [Snapshot provenance](../data/public/manifest.json) · [Methods](../docs/public-data-methods.md)",'']
         (args.output/'report.md').write_text('\n'.join(report))
         print(json.dumps({'input_rows':result['input_rows'],'expected_rows':result['expected_rows'],'summary':result['summary']},indent=2))

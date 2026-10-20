@@ -2,7 +2,7 @@
 
 A reproducible Python and SQLite project about a practical question: **what information do we actually have before interpreting a surveillance curve?**
 
-**Start here:** [Background, rationale, and key themes](docs/project-context.md).
+**Start here:** [Background, rationale, and key themes](docs/project-context.md). Then read [the biology and concepts](docs/biology-and-concepts.md) for an explanation of the measurements.
 
 The main worked example now uses a pinned **real CDC NREVSS aggregate dataset**. It checks weekly test counts and denominators, quantifies coverage of the requested extraction window, and shows how summaries change when recent weeks are left out. A separate version-history engine demonstrates how to reconstruct reports available by a given date without letting later revisions leak backward.
 
@@ -42,6 +42,18 @@ These are summaries of reported tests. A complete extract does not establish com
 ![Weekly test positivity from the pinned CDC extract](results_public/weekly_positivity.svg)
 
 The chart shows unsmoothed count ratios. The [trailing-window table](results_public/trailing_window_sensitivity.csv) reports what happens after excluding observations newer than 0, 7, 14, or 28 days before the analysis date. Every window uses the same release. This checks sensitivity to the observation window; it does not reconstruct earlier reporting vintages.
+
+## Inspect changing test denominators
+
+The public audit now reports consecutive-week test-count ratios in each category. By default, it flags absolute changes **greater than 50%** for review. Flags do not exclude data or change validity decisions. The setting is illustrative, not a validated surveillance threshold.
+
+```sh
+python src/public_audit.py --denominator-change-threshold 0.2 --output results_denominator_20pct
+```
+
+The [week-level diagnostic](results_public/denominator_changes.csv) keeps counts, ratios, signed relative changes, and reasons a comparison was unavailable. Missing weeks are not bridged, and a zero previous denominator produces an undefined ratio. In the pinned extract, all 120 consecutive pairs are evaluable and none crosses the default 50% setting; that does not establish stable testing practices or unbiased reporting.
+
+See [related tools and design choices](docs/tools-and-design-notes.md) for a practical comparison with Carnegie Mellon Delphi's version-aware epidemiological data infrastructure.
 
 ## What the version-history feature adds
 

@@ -33,6 +33,19 @@ The trailing-window analysis excludes weeks newer than 0, 7, 14, or 28 days befo
 | PIV | 14 | 40 | 98.04% | +0.0000 |
 | PIV | 28 | 38 | 93.14% | +0.0175 |
 
+## Did the weekly test denominator change sharply?
+
+The review flag uses an absolute week-to-week test-count change **greater than 50.0%**. It compares consecutive usable calendar weeks only; a missing week or zero previous denominator leaves the ratio undefined. This setting is a demonstration choice, not a validated universal cutoff. Flagged records remain in every analysis.
+
+| Series | Evaluable consecutive pairs | Flagged for review | Largest absolute change |
+| --- | ---: | ---: | ---: |
+| Adenovirus | 40 | 0 | 25.45% |
+| HMPV | 40 | 0 | 16.57% |
+| PIV | 40 | 0 | 34.05% |
+
+[Inspect the week-level counts and ratios](denominator_changes.csv). A change can reflect testing, participation, calendar effects, or other factors; this file does not identify its cause and is not an incidence or outbreak indicator.
+
+
 No adjustment for underreporting, causal effect, or outbreak forecast is fitted. The `posted` field is treated as release metadata, never as an individual laboratory submission date. See the methods for why complete-looking rows can still be provisional.
 
 [Original dataset](https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb) · [Snapshot provenance](../data/public/manifest.json) · [Methods](../docs/public-data-methods.md)
