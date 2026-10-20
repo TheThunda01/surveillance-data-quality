@@ -1,0 +1,4 @@
+pathogen,expected_weeks,rows_present,usable_weeks,usable_week_coverage,absent_weeks,suppressed_weeks,unavailable_weeks,invalid_weeks,zero_test_weeks,detections,tests,pooled_percent_positive,max_rounding_difference_pp
+Adenovirus,41,41,41,1.0,0,0,0,0,0,21057,799289,2.634466381997,0.004990695943431336
+HMPV,41,41,41,1.0,0,0,0,0,0,24375,791964,3.077791414761277,0.005
+PIV,41,41,41,1.0,0,0,0,0,0,23015,875604,2.628471318084431,0.004996201570017726

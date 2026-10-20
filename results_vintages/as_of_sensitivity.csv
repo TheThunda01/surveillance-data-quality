@@ -1,0 +1,4 @@
+as_of,grace_days,expected_due_slots,not_due_slots,available_due_slots,usable_due_slots,unreported_due_slots,invalid_due_slots,usable_due_coverage,future_versions_excluded,selected_revised_due_slots,positive_tests,tests_performed,pooled_positivity
+2026-10-05,7,3,6,2,2,1,0,0.6666666666666666,9,0,2,45,0.044444444444444446
+2026-10-12,7,6,3,6,6,0,0,1.0,4,1,10,109,0.09174311926605505
+2026-10-20,7,9,0,8,8,1,0,0.8888888888888888,0,3,12,157,0.07643312101910828

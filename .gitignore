@@ -5,3 +5,9 @@ __pycache__/
 .DS_Store
 results_clean/
 tmp/
+
+# Optional user captures and exploratory outputs
+snapshots/
+results_new_capture/
+results_comparison/
+results_vintage_oct12/

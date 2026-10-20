@@ -1,6 +1,6 @@
-# Data dictionary
+# Original synthetic site-week data dictionary
 
-All bundled data are synthetic. `demo_A`, `demo_B`, and `demo_C` are invented labels.
+This page describes only `data/calendar.csv`, `data/reports.csv`, and `data/reports_clean.csv`, the original synthetic site-week example. In those files, `demo_A`, `demo_B`, and `demo_C` are invented labels. The separate [public and report-vintage data dictionary](public-data-dictionary.md) documents the real CDC extract and the synthetic version-history fixture.
 
 | File / field | Type and rule | Meaning |
 | --- | --- | --- |

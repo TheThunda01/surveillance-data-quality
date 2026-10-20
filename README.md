@@ -1,68 +1,78 @@
 # Surveillance data quality
 
-A small Python and SQLite project about a practical question: **what can we safely summarize when a weekly reporting table is incomplete or inconsistent?**
+A reproducible Python and SQLite project about a practical question: **what information do we actually have before interpreting a surveillance curve?**
 
-The included data are entirely synthetic. The clinics, test results, dates, and planted errors are invented for this demonstration. This is a completed software example, not an analysis of a real surveillance system.
+**Start here:** [Background, rationale, and key themes](docs/project-context.md).
 
-## Run it
+The main worked example now uses a pinned **real CDC NREVSS aggregate dataset**. It checks weekly test counts and denominators, quantifies coverage of the requested extraction window, and shows how summaries change when recent weeks are left out. A separate version-history engine demonstrates how to reconstruct reports available by a given date without letting later revisions leak backward.
 
-You need Python 3.12 or later. There are no packages to install and the analysis makes no network requests.
+The original synthetic audit remains as a small, easy-to-inspect test case. The real data and synthetic examples are labeled separately throughout.
+
+## Start with the real-data analysis
+
+You need Python 3.12 or later. No third-party packages or network access are needed for the bundled analyses.
 
 ```sh
+python src/public_audit.py
+python src/vintage_audit.py
 python src/audit.py
 python -m unittest discover -s tests -v
 ```
 
-Run these commands from this repository's root. The first command audits `data/reports.csv` against `data/calendar.csv` and writes four files into `results/`. To compare the clean fixture:
+Run these commands from the repository root. The public analysis verifies the pinned file's SHA-256 before reading it. The commands write to three separate output directories.
+
+| Example | Input | What to read |
+| --- | --- | --- |
+| Real public-data audit | 123 CDC national series-week rows from January 3–October 10, 2026 | [Results and sensitivity analysis](results_public/report.md) |
+| As-of report histories | Explicitly synthetic issue dates and revisions | [Vintage analysis](results_vintages/report.md) |
+| Basic SQL audit | Explicitly synthetic clinic reports with planted errors | [Basic audit](results/report.md) |
+
+## What the real example found
+
+All **123 requested series-week records** were present and usable in the captured file: 41 weeks for each of three categories. Their count-derived percentages agreed with the source's displayed percentages within two-decimal rounding.
+
+| CDC series | Positive tests / tests in the selected window | Pooled positivity |
+| --- | ---: | ---: |
+| Adenovirus | 21,057 / 799,289 | 2.634% |
+| HMPV | 24,375 / 791,964 | 3.078% |
+| PIV | 23,015 / 875,604 | 2.628% |
+
+These are summaries of reported tests. A complete extract does not establish complete laboratory reporting, unique-patient coverage, population prevalence, or clinical validity. Each category keeps its own denominator; counts are never pooled across categories. This is a data-quality worked example, not an outbreak forecast.
+
+![Weekly test positivity from the pinned CDC extract](results_public/weekly_positivity.svg)
+
+The chart shows unsmoothed count ratios. The [trailing-window table](results_public/trailing_window_sensitivity.csv) reports what happens after excluding observations newer than 0, 7, 14, or 28 days before the analysis date. Every window uses the same release. This checks sensitivity to the observation window; it does not reconstruct earlier reporting vintages.
+
+## What the version-history feature adds
+
+The separate `vintage_audit.py` command selects the newest report issued on or before `--as-of`. It distinguishes reports that are not yet due from reports that are due but still absent. Revisions replace earlier counts, including downward corrections. Conflicting same-date versions fail validation, and an invalid newest report stays flagged rather than silently reverting to an older value.
 
 ```sh
-python src/audit.py --reports data/reports_clean.csv --output results_clean
+python src/vintage_audit.py --as-of 2026-10-12 --grace-days 7 --output results_vintage_oct12
 ```
 
-The `clean` fixture has no invalid rows; its deliberately late report remains a review item. To rebuild both input examples from their deterministic recipe, run `python src/generate_demo.py`. This overwrites the bundled fixtures, so keep your own files elsewhere.
+The included histories are invented. For the October 20 cutoff, eight of nine due slots have usable reports, one is absent, and three selected reports have revisions. The seven-day grace period is a demonstration choice. This is not a measurement of CDC reporting delays.
 
-## What the demo shows
+Mellor and colleagues' [2026 peer-reviewed review](https://doi.org/10.1371/journal.pdig.0001759) explains why reporting dates and backfilled revisions matter when judging surveillance data retrospectively. Our [methods](docs/public-data-methods.md) connect that reasoning to the implementation and make its limits explicit. The published [2026 MMWR NREVSS analysis](https://doi.org/10.15585/mmwr.mm7506a2) also discusses participation and representativeness constraints; this repository does not reproduce that article's results.
 
-| Check | Result in the bundled example |
-| --- | --- |
-| Expected site-weeks | 12 |
-| Site-weeks with at least one submitted row | 11 |
-| Missing site-weeks | 1 |
-| Invalid site-weeks | 4 |
-| Usable site-weeks | 7 |
-| Excluded input rows | 5 |
-| Usable reports flagged as late | 1 |
-| Positive tests / tests in usable records | 14 / 360, or 3.89% |
+## Capture and compare a future release
 
-The duplicate site-week contributes two excluded rows but only one invalid site-week. That distinction is intentional. The example also includes a valid zero-positive report, a valid zero-test report, and one absent report. Those are three different situations.
+Fetching is optional and requires an internet connection. The adapter downloads the same defined series and date window into a **new** directory, validates the schema, and records provenance. It refuses to overwrite an earlier capture.
 
-The 3.89% figure describes the usable synthetic test results only. It does not estimate disease prevalence, evaluate a diagnostic test, or tell us anything about an actual population.
+```sh
+python src/fetch_public.py --output snapshots/new_capture
+python src/public_audit.py --snapshot snapshots/new_capture --output results_new_capture
+python src/compare_snapshots.py --old data/public --new snapshots/new_capture --output results_comparison
+```
 
-## How it works
+The comparison keeps both releases and reports changed counts, percentages, and availability statuses. We currently include one real capture, so no historical revision rate is claimed. The source `posted` date is release metadata, not a specimen or individual laboratory submission date.
 
-Python checks the CSV schema, dates, counts, expected keys, and duplicate keys before passing the rows to SQLite. The SQL files are part of the analysis, not decorative examples: they create the tables, join submitted records to the expected calendar, and pool the usable counts.
+## Inspect the inputs and methods
 
-- `calendar.csv` defines which site-week reports should exist. Missing submissions are found with a left join.
-- Invalid rows are quarantined from numerical summaries. Every row sharing a duplicated key is excluded; the script never guesses which version is correct.
-- `positive_tests` must be between zero and `tests_performed`. This is a rule for this toy laboratory-report schema; not every real surveillance case definition has this relationship.
-- Positivity is the sum of positive tests divided by the sum of tests across usable records. It is not an unweighted mean of site percentages. A zero denominator produces `null`, not zero.
-- Delay is measured from the end of the reporting week to submission. The seven-day late flag is an example setting, not an evidence-based performance standard.
+- [Public-data provenance and exact filtered source URL](data/public/manifest.json)
+- [Public and report-vintage data dictionaries](docs/public-data-dictionary.md)
+- [Public methods, limitations, and current references](docs/public-data-methods.md)
+- [Original synthetic schema](docs/data-dictionary.md) and [SQL audit methods](docs/methods.md)
+- [Contributing and reproducibility expectations](CONTRIBUTING.md)
 
-CDC's evaluation guidance treats completeness, validity, and timeliness as distinct surveillance considerations. WHO's dashboard documentation illustrates why test-positivity summaries need clearly matched numerator and denominator definitions. The [methods and sources](docs/methods.md) explain how those ideas inform this example and where the analogy stops.
-
-## Read the outputs
-
-- [Human-readable report](results/report.md)
-- [Expected site-week status table](results/slots.csv)
-- [Row-level findings](results/findings.csv), with source CSV line numbers
-- [Machine-readable audit and SHA-256 input fingerprints](results/audit.json)
-
-See the [data dictionary](docs/data-dictionary.md) before using your own aggregate table. For a custom run, pass `--reports`, `--calendar`, and a separate `--output` directory. Inspect findings before making corrections; a passing audit only means these programmed checks found no problem.
-
-## What this demonstrates
-
-CSV validation, defensive parsing, relational joins, explicit denominators, missingness handling, reproducible audit records, command-line software, and tests that exercise analytical failure modes.
-
-This is a focused portfolio project. It does not implement case ascertainment, nowcasting, outbreak detection, record linkage, patient privacy review, or deployment controls. Real data require local definitions and governance before this workflow could be adapted.
-
-Code is offered under the repository's MIT license. The synthetic fixtures were generated for this project; they are not copied from CDC or WHO.
+Source: **CDC NREVSS**. The raw public records are retained unedited and are also available free from the [CDC dataset](https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb). Use of these materials and links does not imply endorsement by CDC, HHS, or the U.S. government. See [CDC's reuse policy](https://www.cdc.gov/other/agencymaterials.html) and the manifest's license note. Repository code uses the MIT license; the synthetic fixtures were generated for this project.

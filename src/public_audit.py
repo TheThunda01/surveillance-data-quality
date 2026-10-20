@@ -1,0 +1,227 @@
+"""Audit a pinned public aggregate CDC NREVSS extract, without reconstructing history."""
+from __future__ import annotations
+import argparse
+from collections import Counter
+import csv
+from datetime import date, datetime, timedelta
+from decimal import Decimal, InvalidOperation
+from html import escape
+import hashlib
+import json
+from pathlib import Path
+
+from audit import nonnegative_integer, parse_date, read_csv
+
+ROOT=Path(__file__).resolve().parents[1]
+FIELDS={'mmwrweek_end','level','state','tests','detections','percent_pos','subtype','pathogen','posted','tests_3wma','detections_5wma','percent_pos_3wma'}
+MISSING={'':'not_reported','.':'unavailable','*':'suppressed'}
+
+
+def api_date(value: str) -> date:
+    if len(value)!=23 or not value.endswith('T00:00:00.000'):
+        raise ValueError('expected Socrata midnight date format')
+    return parse_date(value[:10])
+
+
+def load_snapshot(directory:Path) -> tuple[list[dict],dict]:
+    manifest=json.loads((directory/'manifest.json').read_text())
+    name=manifest['data_file']
+    if Path(name).name!=name:
+        raise ValueError('manifest data_file must be a filename')
+    path=directory/name
+    actual=hashlib.sha256(path.read_bytes()).hexdigest()
+    if actual!=manifest['sha256']:
+        raise ValueError('snapshot SHA-256 does not match manifest')
+    if manifest.get('metadata_file') and manifest.get('metadata_sha256'):
+        metadata_name=manifest['metadata_file']
+        if Path(metadata_name).name!=metadata_name:
+            raise ValueError('metadata_file must be a filename')
+        if hashlib.sha256((directory/metadata_name).read_bytes()).hexdigest()!=manifest['metadata_sha256']:
+            raise ValueError('metadata SHA-256 does not match manifest')
+    rows=read_csv(path,FIELDS)
+    return rows,manifest
+
+
+def audit_snapshot(rows:list[dict], selection:dict) -> dict:
+    first,last=map(parse_date,[selection['first_week_end'],selection['last_week_end']])
+    if first.weekday()!=5 or last.weekday()!=5 or first>last:
+        raise ValueError('selection endpoints must be ordered Saturdays')
+    pathogens=selection['pathogens']
+    if len(set(pathogens))!=len(pathogens) or not pathogens:
+        raise ValueError('selection pathogens must be unique and nonempty')
+    weeks=[first+timedelta(days=7*i) for i in range((last-first).days//7+1)]
+    lookup={}
+    for line,row in enumerate(rows,2):
+        week=api_date(row['mmwrweek_end'])
+        if row['level']!=selection['level'] or row['subtype']!=selection['subtype'] or row['state']:
+            raise ValueError(f'line {line}: row is outside national combined-type selection')
+        if row['pathogen'] not in pathogens or week not in weeks:
+            raise ValueError(f'line {line}: row outside declared snapshot window')
+        lookup.setdefault((row['pathogen'],week),[]).append((line,row))
+    slots=[]
+    for pathogen in pathogens:
+        for week in weeks:
+            submitted=lookup.get((pathogen,week),[])
+            slot={'pathogen':pathogen,'week_end':week.isoformat(),'status':'absent_from_extract',
+                  'source_line':None,'tests':None,'detections':None,'reported_percent_positive':None,
+                  'calculated_percent_positive':None,'percent_difference_pp':None,'posted_date':None,'finding':''}
+            if len(submitted)>1:
+                slot.update(status='invalid',finding='duplicate pathogen-week; all copies quarantined')
+            elif submitted:
+                line,row=submitted[0]; slot['source_line']=line
+                try:
+                    slot['posted_date']=api_date(row['posted']).isoformat()
+                    if parse_date(slot['posted_date'])<week:
+                        raise ValueError('release date precedes observation week')
+                except ValueError as error:
+                    slot.update(status='invalid',finding=str(error));slots.append(slot);continue
+                tokens={row[k] for k in ['tests','detections','percent_pos']}
+                unavailable=tokens.intersection(MISSING)
+                if unavailable:
+                    reason='suppressed' if '*' in unavailable else 'unavailable'
+                    slot.update(status=reason,finding='source marks at least one required value '+reason)
+                else:
+                    try:
+                        tests=nonnegative_integer(row['tests']); positive=nonnegative_integer(row['detections'])
+                        reported=Decimal(row['percent_pos'])
+                        if not reported.is_finite() or reported<0 or reported>100:
+                            raise ValueError('percentage outside 0 to 100')
+                        if positive>tests:
+                            raise ValueError('detections exceed tests')
+                        calculated=Decimal(100)*positive/tests if tests else None
+                        delta=abs(reported-calculated) if calculated is not None else None
+                        slot.update(tests=tests,detections=positive,reported_percent_positive=float(reported),
+                                    calculated_percent_positive=float(calculated) if calculated is not None else None,
+                                    percent_difference_pp=float(delta) if delta is not None else None,status='usable')
+                        if delta is not None and delta>Decimal('0.005000000001'):
+                            slot.update(status='invalid',finding='provided percentage differs from count ratio beyond two-decimal rounding')
+                        if tests==0:
+                            slot['finding']='zero-test denominator; calculated positivity undefined'
+                    except (ValueError,InvalidOperation,OverflowError) as error:
+                        slot.update(status='invalid',finding=str(error))
+            slots.append(slot)
+    summary=[]
+    for pathogen in pathogens:
+        selected=[r for r in slots if r['pathogen']==pathogen]
+        usable=[r for r in selected if r['status']=='usable']
+        tests=sum(r['tests'] for r in usable); positives=sum(r['detections'] for r in usable)
+        statuses=Counter(r['status'] for r in selected)
+        summary.append({'pathogen':pathogen,'expected_weeks':len(weeks),'rows_present':len(selected)-statuses['absent_from_extract'],
+                        'usable_weeks':len(usable),'usable_week_coverage':len(usable)/len(weeks),
+                        'absent_weeks':statuses['absent_from_extract'],'suppressed_weeks':statuses['suppressed'],
+                        'unavailable_weeks':statuses['unavailable'],'invalid_weeks':statuses['invalid'],
+                        'zero_test_weeks':sum(r['tests']==0 for r in usable),
+                        'detections':positives,'tests':tests,'pooled_percent_positive':100*positives/tests if tests else None,
+                        'max_rounding_difference_pp':max((r['percent_difference_pp'] for r in usable if r['percent_difference_pp'] is not None),default=None)})
+    return {'summary':summary,'slots':slots,'input_rows':len(rows),'expected_rows':len(weeks)*len(pathogens)}
+
+
+def trailing_sensitivity(result:dict, as_of:date, lags=(0,7,14,28)) -> list[dict]:
+    """Retrospective window sensitivity; NOT a reconstruction of earlier vintages."""
+    if any(lag<0 for lag in lags):
+        raise ValueError('lag windows must be nonnegative')
+    output=[]
+    for base in result['summary']:
+        full_tests=base['tests']
+        for lag in lags:
+            cutoff=as_of-timedelta(days=lag)
+            selected=[r for r in result['slots'] if r['pathogen']==base['pathogen'] and parse_date(r['week_end'])<=cutoff]
+            usable=[r for r in selected if r['status']=='usable']
+            tests=sum(r['tests'] for r in usable); positives=sum(r['detections'] for r in usable)
+            output.append({'pathogen':base['pathogen'],'exclude_weeks_newer_than_days':lag,'latest_eligible_week_end':cutoff.isoformat(),
+                           'eligible_expected_weeks':len(selected),'usable_weeks':len(usable),
+                           'detections':positives,'tests':tests,'retained_test_denominator_fraction':tests/full_tests if full_tests else None,
+                           'pooled_percent_positive':100*positives/tests if tests else None,
+                           'change_from_all_weeks_pp':100*positives/tests-base['pooled_percent_positive'] if tests and base['pooled_percent_positive'] is not None else None})
+    return output
+
+
+def write_csv(path:Path,rows:list[dict]):
+    if not rows:
+        raise ValueError('cannot write an empty table without a schema')
+    with path.open('w',newline='') as stream:
+        writer=csv.DictWriter(stream,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
+
+
+def chart(slots:list[dict],path:Path):
+    pathogens=list(dict.fromkeys(r['pathogen'] for r in slots))
+    weeks=sorted({r['week_end'] for r in slots})
+    ymax=max((r['calculated_percent_positive'] or 0 for r in slots if r['status']=='usable'),default=1)*1.15 or 1
+    colors=['#0072B2','#D55E00','#009E73']
+    chunks=['<svg xmlns="http://www.w3.org/2000/svg" width="920" height="550" viewBox="0 0 920 550" role="img" aria-labelledby="title desc">',
+            '<title id="title">National NREVSS weekly test positivity in the pinned 2026 extract</title>',
+            '<desc id="desc">Three unsmoothed series, each with its own test denominator. These are test results from voluntary laboratory reporting, not population prevalence.</desc>',
+            '<rect width="920" height="550" fill="white"/>','<g font-family="sans-serif" fill="#17212b">',
+            '<text x="75" y="30" font-size="20">National weekly test positivity · pinned CDC extract</text>',
+            '<text x="75" y="54" font-size="13">Unsmoothed count ratios; each series has a separate denominator.</text>']
+    for j in range(6):
+        y=410-j*64;value=ymax*j/5
+        chunks += [f'<line x1="75" y1="{y}" x2="865" y2="{y}" stroke="#dbe0e5"/>',f'<text x="65" y="{y+4}" text-anchor="end" font-size="12">{value:.1f}%</text>']
+    for i in [0,10,20,30,40]:
+        if i<len(weeks):
+            x=75+790*i/max(1,len(weeks)-1)
+            chunks.append(f'<text x="{x:.1f}" y="433" text-anchor="middle" font-size="12">{weeks[i]}</text>')
+    for index,pathogen in enumerate(pathogens):
+        parts=[]
+        for i,week in enumerate(weeks):
+            r=next(r for r in slots if r['pathogen']==pathogen and r['week_end']==week)
+            if r['status']!='usable' or r['calculated_percent_positive'] is None:
+                if parts: chunks.append(f'<polyline points="{" ".join(parts)}" fill="none" stroke="{colors[index%3]}" stroke-width="2.3"/>');parts=[]
+                continue
+            x=75+790*i/max(1,len(weeks)-1);y=410-320*r['calculated_percent_positive']/ymax
+            parts.append(f'{x:.1f},{y:.1f}')
+        if parts:chunks.append(f'<polyline points="{" ".join(parts)}" fill="none" stroke="{colors[index%3]}" stroke-width="2.3"/>')
+        x=80+index*230
+        chunks += [f'<line x1="{x}" y1="469" x2="{x+28}" y2="469" stroke="{colors[index%3]}" stroke-width="3"/>',f'<text x="{x+36}" y="474" font-size="14">{escape(pathogen)}</text>']
+    chunks += ['<text x="75" y="510" font-size="12">Source: CDC NREVSS; Jan 3–Oct 10, 2026. Retrieved Oct 20, 2026.</text>',
+               '<text x="75" y="529" font-size="12">Coverage here means rows in this extract, not all laboratories, patients, or infections. No CDC endorsement.</text>','</g></svg>']
+    path.write_text('\n'.join(chunks)+'\n')
+
+
+def display_number(value, digits=3, signed=False):
+    if value is None:
+        return 'undefined'
+    return format(value, f'{"+" if signed else ""}.{digits}f')
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--snapshot',type=Path,default=ROOT/'data/public')
+    parser.add_argument('--output',type=Path,default=ROOT/'results_public')
+    parser.add_argument('--as-of',type=parse_date,default=None)
+    args=parser.parse_args()
+    try:
+        if args.snapshot.resolve().is_relative_to(args.output.resolve()):
+            raise ValueError('output must not contain the snapshot input directory')
+        rows,manifest=load_snapshot(args.snapshot)
+        captured=datetime.fromisoformat(manifest['retrieved_at_utc']).date()
+        as_of=args.as_of or captured
+        if as_of<captured:
+            raise ValueError('single snapshot cannot reconstruct availability before its retrieval date')
+        result=audit_snapshot(rows,manifest['selection'])
+        result['provenance']={'source_page':manifest['source_page'],'sha256':manifest['sha256'],'retrieved_at_utc':manifest['retrieved_at_utc'],
+                              'analysis_as_of':as_of.isoformat(),'historical_vintages_available':False}
+        sensitivity=trailing_sensitivity(result,as_of)
+        result['trailing_window_sensitivity']=sensitivity
+        args.output.mkdir(parents=True,exist_ok=True)
+        (args.output/'audit.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
+        write_csv(args.output/'weekly_audit.csv',result['slots']);write_csv(args.output/'summary.csv',result['summary']);write_csv(args.output/'trailing_window_sensitivity.csv',sensitivity)
+        chart(result['slots'],args.output/'weekly_positivity.svg')
+        report=['# Real public-data audit: CDC NREVSS','',
+        f"Pinned extract: **{manifest['selection']['first_week_end']}–{manifest['selection']['last_week_end']}**, retrieved **{captured}**. Source: CDC. This project is not endorsed by CDC or the U.S. government. The source data are freely available from the linked CDC dataset.",'',
+        'This audit describes data in one extracted release. It does not measure the fraction of all laboratories reporting or the completeness of infections in the population.','',
+        '| Series | Usable / expected weeks | Positive tests / tests | Pooled positivity |', '| --- | --- | --- | --- |']
+        report += [f"| {r['pathogen']} | {r['usable_weeks']} / {r['expected_weeks']} | {r['detections']:,} / {r['tests']:,} | {display_number(r['pooled_percent_positive'])}% |" for r in result['summary']]
+        report += ['', '![Weekly unsmoothed test positivity](weekly_positivity.svg)','',
+        'All three numerator/denominator pairs remain separate. Do not add them as unique people or compare pooled ratios as if they came from identical tested populations.','',
+        '## What changes when recent weeks are held out?','',
+        'The trailing-window analysis excludes weeks newer than 0, 7, 14, or 28 days before the analysis date. It reuses the same retrieved release. It is a sensitivity analysis of the observation window, **not** a recovery of values that were reported on an earlier date.','',
+        '| Series | Days held out | Usable weeks | Retained test denominator | Positivity change (percentage points) |', '| --- | ---: | ---: | ---: | ---: |']
+        report += [f"| {r['pathogen']} | {r['exclude_weeks_newer_than_days']} | {r['usable_weeks']} | {display_number(100*r['retained_test_denominator_fraction'] if r['retained_test_denominator_fraction'] is not None else None, 2)}% | {display_number(r['change_from_all_weeks_pp'], 4, True)} |" for r in sensitivity]
+        report += ['', 'No adjustment for underreporting, causal effect, or outbreak forecast is fitted. The `posted` field is treated as release metadata, never as an individual laboratory submission date. See the methods for why complete-looking rows can still be provisional.','',f"[Original dataset]({manifest['source_page']}) · [Snapshot provenance](../data/public/manifest.json) · [Methods](../docs/public-data-methods.md)",'']
+        (args.output/'report.md').write_text('\n'.join(report))
+        print(json.dumps({'input_rows':result['input_rows'],'expected_rows':result['expected_rows'],'summary':result['summary']},indent=2))
+    except (ValueError,KeyError,OSError,csv.Error) as error:
+        parser.exit(2,f'public audit failed: {error}\n')
+
+if __name__=='__main__':main()

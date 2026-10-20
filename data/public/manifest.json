@@ -1,0 +1,28 @@
+{
+  "source": "CDC National Respiratory and Enteric Virus Surveillance System (NREVSS)",
+  "dataset_id": "rgnm-fkqb",
+  "source_page": "https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb",
+  "download_url": "https://data.cdc.gov/resource/rgnm-fkqb.csv?%24where=level+%3D+%27National%27+AND+subtype+%3D+%27Combined+Type%27+AND+pathogen+in+%28%27Adenovirus%27%2C%27HMPV%27%2C%27PIV%27%29+AND+mmwrweek_end+%3E%3D+%272026-01-03T00%3A00%3A00.000%27+AND+mmwrweek_end+%3C%3D+%272026-10-10T00%3A00%3A00.000%27&%24order=mmwrweek_end+ASC%2C+pathogen+ASC&%24limit=5000",
+  "metadata_url": "https://data.cdc.gov/api/views/rgnm-fkqb.json",
+  "retrieved_at_utc": "2026-10-20T16:58:50.140689+00:00",
+  "data_file": "nrevss_national_2026.csv",
+  "sha256": "1ec420cf5a7e029b1f3649b1aebdc57c4000a0222aaf552077c1ab09b985808e",
+  "byte_length": 15122,
+  "license_id": null,
+  "metadata_file": "source_metadata.json",
+  "selection": {
+    "level": "National",
+    "subtype": "Combined Type",
+    "pathogens": [
+      "Adenovirus",
+      "HMPV",
+      "PIV"
+    ],
+    "first_week_end": "2026-01-03",
+    "last_week_end": "2026-10-10"
+  },
+  "disclaimer": "Single retrieved version. Provider posted date is release metadata, not specimen or individual-report receipt time. No historical vintage reconstruction is claimed.",
+  "metadata_sha256": "afa309159ea57973a363c74e93af661734f6296ac9c0c6581a6914cadb74c4e7",
+  "license_note": "Socrata metadata has no dataset-specific licenseId. CDC agency-materials policy generally permits public-domain reuse except identified copyrighted material; retain attribution and do not imply CDC endorsement.",
+  "reuse_policy_url": "https://www.cdc.gov/other/agencymaterials.html"
+}

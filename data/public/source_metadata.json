@@ -1,0 +1,72 @@
+{
+  "id": "rgnm-fkqb",
+  "name": "Percent positivity of respiratory viruses by nucleic acid amplification tests (NAATs), as reported on the National Respiratory and Enteric Virus Surveillance System (NREVSS) Dashboard",
+  "attribution": "CDC",
+  "attributionLink": "https://www.cdc.gov/nrevss/php/dashboard/index.html",
+  "licenseId": null,
+  "rowsUpdatedAt": 1792175161,
+  "columns": [
+    {
+      "fieldName": "mmwrweek_end",
+      "name": "Mmwrweek_end",
+      "dataTypeName": "calendar_date"
+    },
+    {
+      "fieldName": "level",
+      "name": "Level",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "state",
+      "name": "State",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "tests",
+      "name": "Tests",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "detections",
+      "name": "Detections",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "percent_pos",
+      "name": "Percent_pos",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "subtype",
+      "name": "Subtype",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "pathogen",
+      "name": "Pathogen",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "posted",
+      "name": "Posted",
+      "dataTypeName": "calendar_date"
+    },
+    {
+      "fieldName": "tests_3wma",
+      "name": "Tests_3wma",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "detections_5wma",
+      "name": "Detections_5wma",
+      "dataTypeName": "text"
+    },
+    {
+      "fieldName": "percent_pos_3wma",
+      "name": "Percent_Pos_3wma",
+      "dataTypeName": "text"
+    }
+  ],
+  "public_access": "public",
+  "update_frequency": "Weekly"
+}
