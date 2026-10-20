@@ -1,0 +1,14 @@
+{
+  "contract_version": "1.0",
+  "contract_valid": true,
+  "review_required": false,
+  "dataset_id": "rgnm-fkqb",
+  "data_sha256": "1ec420cf5a7e029b1f3649b1aebdc57c4000a0222aaf552077c1ab09b985808e",
+  "metadata_sha256": "afa309159ea57973a363c74e93af661734f6296ac9c0c6581a6914cadb74c4e7",
+  "retrieved_at_utc": "2026-10-20T16:58:50.140689+00:00",
+  "rows": 123,
+  "expected_slots": 123,
+  "invalid_slots": 0,
+  "unavailable_slots": 0,
+  "interpretation": "Checks file integrity, supported schema and row consistency only; does not establish complete laboratory reporting or authentic source provenance."
+}

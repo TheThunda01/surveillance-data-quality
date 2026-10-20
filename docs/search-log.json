@@ -1,0 +1,175 @@
+{
+  "search_date": "2026-10-20",
+  "scope": "Public aggregate respiratory-surveillance data quality: observation definitions, reporting revisions, denominator and provenance checks.",
+  "review_type": "Bounded rapid evidence and practice review; not a systematic review",
+  "inclusion_criteria": [
+    "2022-01-01 to 2026-10-20 publication dates",
+    "Direct relevance to surveillance metadata, reporting revisions or NREVSS measurement",
+    "Primary methods/reporting studies or relevant peer-reviewed synthesis; official source documentation"
+  ],
+  "exclusion_criteria": [
+    "Different measurement modality without direct metadata implications",
+    "Nowcasting model implementation outside the bounded audit",
+    "No generalisable contribution to the selected input-contract change"
+  ],
+  "searches": [
+    {
+      "source": "PubMed connector",
+      "query": "\"epidemic surveillance\"[Title/Abstract] AND (\"reporting delays\"[Title/Abstract] OR \"data revisions\"[Title/Abstract])",
+      "date_from": "2022/01/01",
+      "date_to": "2026/10/20",
+      "date_type": "publication",
+      "sort": "relevance",
+      "offset": 0,
+      "max_results": 10,
+      "reported_total": 5,
+      "returned_count": 5,
+      "retrieved_ids": [
+        "35501734",
+        "42832413",
+        "41264651",
+        "41775925",
+        "41472268"
+      ],
+      "next_offset": null,
+      "has_more": false,
+      "limits": "All reported records returned at offset 0; bounded query not entire literature."
+    },
+    {
+      "source": "PubMed connector",
+      "query": "\"Respiratory Virus Activity\"[Title] AND \"United States\"[Title]",
+      "date_from": "2022/01/01",
+      "date_to": "2026/10/20",
+      "date_type": "publication",
+      "sort": "relevance",
+      "offset": 0,
+      "max_results": 10,
+      "reported_total": 1,
+      "returned_count": 1,
+      "retrieved_ids": [
+        "41712508"
+      ],
+      "next_offset": null,
+      "has_more": false,
+      "limits": "All reported records returned at offset 0; bounded query not entire literature."
+    },
+    {
+      "source": "GitHub connector targeted lookup",
+      "query": "cmu-delphi/delphi-epidata docs/api/v5.md and LICENSE",
+      "total_results": null,
+      "total_results_reason": "Direct file lookup, not a ranked search",
+      "ref": "603969199277177c2e3c612b13fa732f1698f99c",
+      "retrieved_files": [
+        "docs/api/v5.md",
+        "LICENSE"
+      ],
+      "access": "Complete target files inspected; no source copied"
+    },
+    {
+      "source": "Pinned primary dataset metadata inspection",
+      "query": "data/public/source_metadata.json and manifest.json",
+      "total_results": null,
+      "total_results_reason": "Local pinned source artifacts, not a search",
+      "data_sha256": "1ec420cf5a7e029b1f3649b1aebdc57c4000a0222aaf552077c1ab09b985808e",
+      "metadata_sha256": "afa309159ea57973a363c74e93af661734f6296ac9c0c6581a6914cadb74c4e7",
+      "access": "Complete captured metadata; source release is one snapshot"
+    }
+  ],
+  "screening": [
+    {
+      "pmid": "35501734",
+      "title": "Timely epidemic monitoring in the presence of reporting delays: anticipating the COVID-19 surge in New York City, September 2020.",
+      "doi": "10.1186/s12889-022-13286-7",
+      "decision": "exclude",
+      "reason": "Excluded: specific delay-correction modelling study; selected work concerns source/metadata contract rather than nowcasting.",
+      "screening_access": "PubMed title/abstract metadata",
+      "appraisal_access": "Title/abstract metadata only"
+    },
+    {
+      "pmid": "42832413",
+      "title": "Recommendations for the analysis of leading indicators in epidemic surveillance.",
+      "doi": "10.1371/journal.pdig.0001759",
+      "decision": "include",
+      "reason": "Included: directly supports source/metadata/revision interpretation.",
+      "screening_access": "PubMed title/abstract metadata",
+      "appraisal_access": "Partial PMC full text; no comprehensive supplement review"
+    },
+    {
+      "pmid": "41264651",
+      "title": "Real-time forecasting of data revisions in epidemic surveillance streams.",
+      "doi": "10.1371/journal.pcbi.1013709",
+      "decision": "include",
+      "reason": "Included: directly supports source/metadata/revision interpretation.",
+      "screening_access": "PubMed title/abstract metadata",
+      "appraisal_access": "Partial PMC full text; no comprehensive supplement review"
+    },
+    {
+      "pmid": "41775925",
+      "title": "Real-time digital prescriptions unlock influenza dynamics: evidence from 21 million transactions.",
+      "doi": "10.1038/s41746-026-02513-9",
+      "decision": "exclude",
+      "reason": "Excluded: digital prescription modality and dynamics beyond this aggregate laboratory audit.",
+      "screening_access": "PubMed title/abstract metadata",
+      "appraisal_access": "Title/abstract metadata only"
+    },
+    {
+      "pmid": "41472268",
+      "title": "Nowcast-It: A Practical Toolbox for Real-Time Adjustment of Reporting Delays in Epidemic Surveillance.",
+      "doi": "10.3390/v17121598",
+      "decision": "exclude",
+      "reason": "Excluded: delay-adjustment toolbox implementation outside chosen input-contract scope.",
+      "screening_access": "PubMed title/abstract metadata",
+      "appraisal_access": "Title/abstract metadata only"
+    },
+    {
+      "pmid": "41712508",
+      "title": "Respiratory Virus Activity - United States, July 1, 2024-June 30, 2025.",
+      "doi": "10.15585/mmwr.mm7506a2",
+      "decision": "include",
+      "reason": "Included: directly supports source/metadata/revision interpretation.",
+      "screening_access": "PubMed title/abstract metadata",
+      "appraisal_access": "Partial PMC full text; no comprehensive supplement review"
+    }
+  ],
+  "counts": {
+    "pubmed_returned_slots": 6,
+    "pubmed_unique_screened": 6,
+    "pubmed_publications_cited": 3,
+    "supplementary_sources_cited": 2
+  },
+  "full_text_retrieval": [
+    {
+      "pmid": "42832413",
+      "pmcid": "PMC13637922",
+      "available": true,
+      "characters_returned": 24000,
+      "truncated": true,
+      "total_characters": 53368,
+      "supplements": "Not comprehensively retrieved or assessed"
+    },
+    {
+      "pmid": "41264651",
+      "pmcid": "PMC12646461",
+      "available": true,
+      "characters_returned": 24000,
+      "truncated": true,
+      "total_characters": 64415,
+      "supplements": "Not comprehensively retrieved or assessed"
+    },
+    {
+      "pmid": "41712508",
+      "pmcid": "PMC12919848",
+      "available": true,
+      "characters_returned": 24000,
+      "truncated": true,
+      "total_characters": 27867,
+      "supplements": "Not comprehensively retrieved or assessed"
+    }
+  ],
+  "limitations": [
+    "Single reviewer, one bibliographic database, narrow English queries",
+    "No independent duplicate screening or formal risk-of-bias assessment",
+    "Full-text responses truncated; claims confined to inspected sections",
+    "No review completeness or PRISMA claim"
+  ]
+}

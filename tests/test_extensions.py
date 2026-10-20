@@ -33,8 +33,9 @@ class PublicDataTests(unittest.TestCase):
     def test_snapshot_tampering_fails(self):
         with tempfile.TemporaryDirectory() as name:
             path=Path(name)
-            path.joinpath('manifest.json').write_text(json.dumps({'data_file':'data.csv','sha256':'wrong'}))
-            path.joinpath('data.csv').write_text('edited')
+            manifest=json.loads((ROOT/'data/public/manifest.json').read_text())
+            manifest['sha256']='wrong'
+            path.joinpath('manifest.json').write_text(json.dumps(manifest))
             with self.assertRaisesRegex(ValueError,'SHA-256'):load_snapshot(path)
 
     def test_public_missing_not_zero(self):

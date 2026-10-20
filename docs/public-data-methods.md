@@ -1,5 +1,7 @@
 # Public data, report vintages, and what the checks mean
 
+The [practical-use contract](practical-use.md) now documents a read-only preflight for the public snapshot. Before parsing observations, the loader checks the manifest's supported source endpoints, UTC capture timestamp, selection, exact byte length/digests, and captured metadata identity/columns. This detects contract mismatches; it does not authenticate edited files or establish complete surveillance. The [bounded evidence review](literature-review.md) records the rationale and inspected sources.
+
 ## The question
 
 Can a small, reproducible audit make the observation window, available reports, and test denominators visible before anyone interprets a surveillance curve?

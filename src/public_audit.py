@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 from audit import nonnegative_integer, parse_date, read_csv
+from snapshot_contract import validate_manifest
 
 ROOT=Path(__file__).resolve().parents[1]
 FIELDS={'mmwrweek_end','level','state','tests','detections','percent_pos','subtype','pathogen','posted','tests_3wma','detections_5wma','percent_pos_3wma'}
@@ -25,10 +26,15 @@ def api_date(value: str) -> date:
 
 def load_snapshot(directory:Path) -> tuple[list[dict],dict]:
     manifest=json.loads((directory/'manifest.json').read_text())
+    captured=validate_manifest(manifest).date()
     name=manifest['data_file']
     if Path(name).name!=name:
         raise ValueError('manifest data_file must be a filename')
     path=directory/name
+    if path.is_symlink() or (directory/manifest['metadata_file']).is_symlink():
+        raise ValueError('snapshot data and metadata must not be symlinks')
+    if path.stat().st_size!=manifest['byte_length']:
+        raise ValueError('snapshot byte_length does not match manifest')
     actual=hashlib.sha256(path.read_bytes()).hexdigest()
     if actual!=manifest['sha256']:
         raise ValueError('snapshot SHA-256 does not match manifest')
@@ -38,7 +44,24 @@ def load_snapshot(directory:Path) -> tuple[list[dict],dict]:
             raise ValueError('metadata_file must be a filename')
         if hashlib.sha256((directory/metadata_name).read_bytes()).hexdigest()!=manifest['metadata_sha256']:
             raise ValueError('metadata SHA-256 does not match manifest')
+        metadata=json.loads((directory/metadata_name).read_text())
+        if not isinstance(metadata,dict) or metadata.get('id')!=manifest['dataset_id']:
+            raise ValueError('metadata dataset identity does not match manifest')
+        columns=metadata.get('columns')
+        if not isinstance(columns,list) or any(not isinstance(c,dict) for c in columns):
+            raise ValueError('metadata columns must be a list of objects')
+        names=[c.get('fieldName') for c in columns]
+        if any(not isinstance(n,str) for n in names) or set(names)!=FIELDS or len(names)!=len(FIELDS):
+            raise ValueError('metadata column schema does not match the supported adapter')
     rows=read_csv(path,FIELDS)
+    for line,row in enumerate(rows,2):
+        try:
+            posted=api_date(row['posted'])
+        except ValueError:
+            # Malformed release dates remain row-level findings in the audit.
+            continue
+        if posted>captured:
+            raise ValueError(f'line {line}: posted release date follows snapshot capture date')
     return rows,manifest
 
 
