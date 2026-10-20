@@ -1,0 +1,20 @@
+{
+  "diagnostics_version": "1.0",
+  "status": "rejected",
+  "exit_code": 2,
+  "summary": null,
+  "findings": [
+    {
+      "code": "MANIFEST_TYPE",
+      "severity": "error",
+      "message": "manifest must be a JSON object",
+      "location": {
+        "scope": "manifest",
+        "field": null,
+        "line": null,
+        "pathogen": null,
+        "week_end": null
+      }
+    }
+  ]
+}

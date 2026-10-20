@@ -12,6 +12,7 @@ from pathlib import Path
 
 from audit import nonnegative_integer, parse_date, read_csv
 from snapshot_contract import validate_manifest
+from diagnostics import DiagnosticError, finding, read_json_document
 
 ROOT=Path(__file__).resolve().parents[1]
 FIELDS={'mmwrweek_end','level','state','tests','detections','percent_pos','subtype','pathogen','posted','tests_3wma','detections_5wma','percent_pos_3wma'}
@@ -25,35 +26,35 @@ def api_date(value: str) -> date:
 
 
 def load_snapshot(directory:Path) -> tuple[list[dict],dict]:
-    manifest=json.loads((directory/'manifest.json').read_text())
+    manifest=read_json_document(directory/'manifest.json','manifest')
     captured=validate_manifest(manifest).date()
     name=manifest['data_file']
     if Path(name).name!=name:
-        raise ValueError('manifest data_file must be a filename')
+        raise DiagnosticError('FILENAME_INVALID','manifest data_file must be a filename',field='data_file')
     path=directory/name
     if path.is_symlink() or (directory/manifest['metadata_file']).is_symlink():
-        raise ValueError('snapshot data and metadata must not be symlinks')
+        raise DiagnosticError('SNAPSHOT_SYMLINK','snapshot data and metadata must not be symlinks')
     if path.stat().st_size!=manifest['byte_length']:
-        raise ValueError('snapshot byte_length does not match manifest')
+        raise DiagnosticError('DATA_LENGTH_MISMATCH','snapshot byte_length does not match manifest',field='byte_length')
     actual=hashlib.sha256(path.read_bytes()).hexdigest()
     if actual!=manifest['sha256']:
-        raise ValueError('snapshot SHA-256 does not match manifest')
+        raise DiagnosticError('DATA_DIGEST_MISMATCH','snapshot SHA-256 does not match manifest',field='sha256')
     if manifest.get('metadata_file') and manifest.get('metadata_sha256'):
         metadata_name=manifest['metadata_file']
         if Path(metadata_name).name!=metadata_name:
-            raise ValueError('metadata_file must be a filename')
+            raise DiagnosticError('FILENAME_INVALID','metadata_file must be a filename',field='metadata_file')
         if hashlib.sha256((directory/metadata_name).read_bytes()).hexdigest()!=manifest['metadata_sha256']:
-            raise ValueError('metadata SHA-256 does not match manifest')
-        metadata=json.loads((directory/metadata_name).read_text())
+            raise DiagnosticError('METADATA_DIGEST_MISMATCH','metadata SHA-256 does not match manifest',field='metadata_sha256')
+        metadata=read_json_document(directory/metadata_name,'metadata')
         if not isinstance(metadata,dict) or metadata.get('id')!=manifest['dataset_id']:
-            raise ValueError('metadata dataset identity does not match manifest')
+            raise DiagnosticError('METADATA_IDENTITY_MISMATCH','metadata dataset identity does not match manifest',field='id')
         columns=metadata.get('columns')
         if not isinstance(columns,list) or any(not isinstance(c,dict) for c in columns):
-            raise ValueError('metadata columns must be a list of objects')
+            raise DiagnosticError('METADATA_COLUMNS_INVALID','metadata columns must be a list of objects',field='columns')
         names=[c.get('fieldName') for c in columns]
         if any(not isinstance(n,str) for n in names) or set(names)!=FIELDS or len(names)!=len(FIELDS):
-            raise ValueError('metadata column schema does not match the supported adapter')
-    rows=read_csv(path,FIELDS)
+            raise DiagnosticError('METADATA_COLUMNS_INVALID','metadata column schema does not match the supported adapter',field='columns')
+    rows=read_snapshot_csv(path)
     for line,row in enumerate(rows,2):
         try:
             posted=api_date(row['posted'])
@@ -61,11 +62,27 @@ def load_snapshot(directory:Path) -> tuple[list[dict],dict]:
             # Malformed release dates remain row-level findings in the audit.
             continue
         if posted>captured:
-            raise ValueError(f'line {line}: posted release date follows snapshot capture date')
+            raise DiagnosticError('RELEASE_AFTER_CAPTURE',f'line {line}: posted release date follows snapshot capture date',field='posted',line=line)
     return rows,manifest
 
 
-def audit_snapshot(rows:list[dict], selection:dict) -> dict:
+def read_snapshot_csv(path):
+    with path.open(newline='',encoding='utf-8') as stream:
+        reader=csv.DictReader(stream,strict=True)
+        try:
+            if reader.fieldnames is None or set(reader.fieldnames)!=FIELDS or len(reader.fieldnames)!=len(FIELDS):
+                raise DiagnosticError('CSV_SCHEMA_INVALID',f'{path.name}: columns must be exactly {sorted(FIELDS)}',line=1)
+            rows=[]
+            for row in reader:
+                if None in row or any(value is None for value in row.values()):
+                    raise DiagnosticError('CSV_ROW_WIDTH_INVALID',f'{path.name}: malformed CSV row width',line=reader.line_num)
+                rows.append(row)
+        except csv.Error as error:
+            raise DiagnosticError('CSV_PARSE_INVALID',f'{path.name}: malformed CSV: {error}',line=reader.line_num) from error
+    return rows
+
+
+def audit_snapshot(rows:list[dict], selection:dict, diagnostic_findings=None) -> dict:
     first,last=map(parse_date,[selection['first_week_end'],selection['last_week_end']])
     if first.weekday()!=5 or last.weekday()!=5 or first>last:
         raise ValueError('selection endpoints must be ordered Saturdays')
@@ -75,21 +92,30 @@ def audit_snapshot(rows:list[dict], selection:dict) -> dict:
     weeks=[first+timedelta(days=7*i) for i in range((last-first).days//7+1)]
     lookup={}
     for line,row in enumerate(rows,2):
-        week=api_date(row['mmwrweek_end'])
+        try:
+            week=api_date(row['mmwrweek_end'])
+        except ValueError as error:
+            raise DiagnosticError('OBSERVATION_DATE_INVALID',f'line {line}: {error}',field='mmwrweek_end',line=line) from error
         if row['level']!=selection['level'] or row['subtype']!=selection['subtype'] or row['state']:
-            raise ValueError(f'line {line}: row is outside national combined-type selection')
+            raise DiagnosticError('OBSERVATION_OUTSIDE_SELECTION',f'line {line}: row is outside national combined-type selection',line=line)
         if row['pathogen'] not in pathogens or week not in weeks:
-            raise ValueError(f'line {line}: row outside declared snapshot window')
+            raise DiagnosticError('OBSERVATION_OUTSIDE_SELECTION',f'line {line}: row outside declared snapshot window',line=line)
         lookup.setdefault((row['pathogen'],week),[]).append((line,row))
     slots=[]
+    def record(slot,code):
+        if diagnostic_findings is not None:
+            diagnostic_findings.append(finding(code,slot['finding'] or 'No row exists for expected series-week',
+                                               line=slot['source_line'],pathogen=slot['pathogen'],week_end=slot['week_end']))
     for pathogen in pathogens:
         for week in weeks:
             submitted=lookup.get((pathogen,week),[])
             slot={'pathogen':pathogen,'week_end':week.isoformat(),'status':'absent_from_extract',
                   'source_line':None,'tests':None,'detections':None,'reported_percent_positive':None,
                   'calculated_percent_positive':None,'percent_difference_pp':None,'posted_date':None,'finding':''}
+            code='OBSERVATION_MISSING'
             if len(submitted)>1:
                 slot.update(status='invalid',finding='duplicate pathogen-week; all copies quarantined')
+                code='OBSERVATION_DUPLICATE'
             elif submitted:
                 line,row=submitted[0]; slot['source_line']=line
                 try:
@@ -97,12 +123,13 @@ def audit_snapshot(rows:list[dict], selection:dict) -> dict:
                     if parse_date(slot['posted_date'])<week:
                         raise ValueError('release date precedes observation week')
                 except ValueError as error:
-                    slot.update(status='invalid',finding=str(error));slots.append(slot);continue
+                    slot.update(status='invalid',finding=str(error));slots.append(slot);record(slot,'OBSERVATION_RELEASE_INVALID');continue
                 tokens={row[k] for k in ['tests','detections','percent_pos']}
                 unavailable=tokens.intersection(MISSING)
                 if unavailable:
                     reason='suppressed' if '*' in unavailable else 'unavailable'
                     slot.update(status=reason,finding='source marks at least one required value '+reason)
+                    code='OBSERVATION_SUPPRESSED' if reason=='suppressed' else 'OBSERVATION_UNAVAILABLE'
                 else:
                     try:
                         tests=nonnegative_integer(row['tests']); positive=nonnegative_integer(row['detections'])
@@ -116,13 +143,18 @@ def audit_snapshot(rows:list[dict], selection:dict) -> dict:
                         slot.update(tests=tests,detections=positive,reported_percent_positive=float(reported),
                                     calculated_percent_positive=float(calculated) if calculated is not None else None,
                                     percent_difference_pp=float(delta) if delta is not None else None,status='usable')
+                        code=None
                         if delta is not None and delta>Decimal('0.005000000001'):
                             slot.update(status='invalid',finding='provided percentage differs from count ratio beyond two-decimal rounding')
+                            code='OBSERVATION_PERCENT_MISMATCH'
                         if tests==0:
                             slot['finding']='zero-test denominator; calculated positivity undefined'
+                            code='OBSERVATION_ZERO_TESTS'
                     except (ValueError,InvalidOperation,OverflowError) as error:
                         slot.update(status='invalid',finding=str(error))
+                        code='OBSERVATION_VALUES_INVALID'
             slots.append(slot)
+            if code is not None:record(slot,code)
     summary=[]
     for pathogen in pathogens:
         selected=[r for r in slots if r['pathogen']==pathogen]

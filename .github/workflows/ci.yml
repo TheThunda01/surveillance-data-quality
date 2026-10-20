@@ -15,3 +15,4 @@ jobs:
       - run: python src/public_audit.py --output /tmp/public-results
       - run: python src/vintage_audit.py --output /tmp/vintage-results
       - run: python src/validate_snapshot.py
+      - run: python src/validate_snapshot.py --diagnostics-json

@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Surveillance preflight diagnostic envelope version 1.0",
+  "type": "object",
+  "required": [
+    "diagnostics_version",
+    "status",
+    "exit_code",
+    "summary",
+    "findings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "diagnostics_version": {
+      "const": "1.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "review",
+        "rejected"
+      ]
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        2
+      ]
+    },
+    "summary": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "message",
+          "location"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "MANIFEST_TYPE",
+              "DIGEST_FORMAT",
+              "FILENAME_INVALID",
+              "FILENAME_COLLISION",
+              "BYTE_LENGTH_INVALID",
+              "DATASET_UNSUPPORTED",
+              "SOURCE_URL_INVALID",
+              "CAPTURE_TIMESTAMP_INVALID",
+              "SELECTION_SCOPE_INVALID",
+              "SELECTION_SERIES_INVALID",
+              "SELECTION_DATE_INVALID",
+              "SELECTION_WINDOW_INVALID",
+              "SNAPSHOT_SYMLINK",
+              "DATA_LENGTH_MISMATCH",
+              "DATA_DIGEST_MISMATCH",
+              "METADATA_DIGEST_MISMATCH",
+              "METADATA_IDENTITY_MISMATCH",
+              "METADATA_COLUMNS_INVALID",
+              "JSON_INVALID",
+              "TEXT_ENCODING_INVALID",
+              "FILE_IO_ERROR",
+              "CSV_SCHEMA_INVALID",
+              "CSV_ROW_WIDTH_INVALID",
+              "CSV_PARSE_INVALID",
+              "RELEASE_AFTER_CAPTURE",
+              "OBSERVATION_DATE_INVALID",
+              "OBSERVATION_OUTSIDE_SELECTION",
+              "VALIDATION_FAILED",
+              "OBSERVATION_MISSING",
+              "OBSERVATION_DUPLICATE",
+              "OBSERVATION_RELEASE_INVALID",
+              "OBSERVATION_SUPPRESSED",
+              "OBSERVATION_UNAVAILABLE",
+              "OBSERVATION_VALUES_INVALID",
+              "OBSERVATION_PERCENT_MISMATCH",
+              "OBSERVATION_ZERO_TESTS"
+            ]
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "review",
+              "info"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "location": {
+            "type": "object",
+            "required": [
+              "scope",
+              "field",
+              "line",
+              "pathogen",
+              "week_end"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "scope": {
+                "type": "string"
+              },
+              "field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "line": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "pathogen": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "week_end": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 2
+          },
+          "summary": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "exit_code": {
+            "const": 0
+          },
+          "summary": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ]
+}

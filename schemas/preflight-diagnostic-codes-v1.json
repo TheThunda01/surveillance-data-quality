@@ -1,0 +1,222 @@
+{
+  "diagnostics_version": "1.0",
+  "stability": "This catalog and accompanying schema describe exactly version 1.0. Codes retain their meanings within major version 1. Consumers accepting a later minor version should tolerate its documented additive codes and fields; human messages are not stable identifiers.",
+  "codes": [
+    {
+      "code": "MANIFEST_TYPE",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Manifest must be a JSON object."
+    },
+    {
+      "code": "DIGEST_FORMAT",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "A declared digest is not lowercase SHA-256 hexadecimal."
+    },
+    {
+      "code": "FILENAME_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "A referenced file name is not a plain allowed filename."
+    },
+    {
+      "code": "FILENAME_COLLISION",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Data and metadata refer to the same file."
+    },
+    {
+      "code": "BYTE_LENGTH_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Declared byte length is outside the supported integer range."
+    },
+    {
+      "code": "DATASET_UNSUPPORTED",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "The declared dataset is not supported by this adapter."
+    },
+    {
+      "code": "SOURCE_URL_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "A required source URL does not identify the supported endpoint."
+    },
+    {
+      "code": "CAPTURE_TIMESTAMP_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Capture timestamp is missing, malformed, or not UTC."
+    },
+    {
+      "code": "SELECTION_SCOPE_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Geographic level or subtype is unsupported."
+    },
+    {
+      "code": "SELECTION_SERIES_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Series selection is empty, duplicated, or unsupported."
+    },
+    {
+      "code": "SELECTION_DATE_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Selection date is missing or malformed."
+    },
+    {
+      "code": "SELECTION_WINDOW_INVALID",
+      "severity": "error",
+      "scope": "manifest",
+      "description": "Selection dates are unordered, non-Saturdays, or after capture."
+    },
+    {
+      "code": "SNAPSHOT_SYMLINK",
+      "severity": "error",
+      "scope": "snapshot",
+      "description": "A data or metadata file is a symlink."
+    },
+    {
+      "code": "DATA_LENGTH_MISMATCH",
+      "severity": "error",
+      "scope": "snapshot",
+      "description": "Observed data byte length differs from its declaration."
+    },
+    {
+      "code": "DATA_DIGEST_MISMATCH",
+      "severity": "error",
+      "scope": "snapshot",
+      "description": "Data bytes differ from the declared digest."
+    },
+    {
+      "code": "METADATA_DIGEST_MISMATCH",
+      "severity": "error",
+      "scope": "metadata",
+      "description": "Metadata bytes differ from the declared digest."
+    },
+    {
+      "code": "METADATA_IDENTITY_MISMATCH",
+      "severity": "error",
+      "scope": "metadata",
+      "description": "Metadata is not an object with the declared dataset identity."
+    },
+    {
+      "code": "METADATA_COLUMNS_INVALID",
+      "severity": "error",
+      "scope": "metadata",
+      "description": "Metadata columns do not describe the supported schema."
+    },
+    {
+      "code": "JSON_INVALID",
+      "severity": "error",
+      "scope": "input",
+      "description": "A JSON document is syntactically invalid."
+    },
+    {
+      "code": "TEXT_ENCODING_INVALID",
+      "severity": "error",
+      "scope": "input",
+      "description": "A document cannot be decoded as UTF-8."
+    },
+    {
+      "code": "FILE_IO_ERROR",
+      "severity": "error",
+      "scope": "input",
+      "description": "An input file cannot be read or inspected."
+    },
+    {
+      "code": "CSV_SCHEMA_INVALID",
+      "severity": "error",
+      "scope": "csv",
+      "description": "CSV header differs from the supported twelve-column schema."
+    },
+    {
+      "code": "CSV_ROW_WIDTH_INVALID",
+      "severity": "error",
+      "scope": "csv",
+      "description": "CSV row width differs from its header."
+    },
+    {
+      "code": "CSV_PARSE_INVALID",
+      "severity": "error",
+      "scope": "csv",
+      "description": "CSV syntax is rejected by the strict parser."
+    },
+    {
+      "code": "RELEASE_AFTER_CAPTURE",
+      "severity": "error",
+      "scope": "observation",
+      "description": "A parsed release date is after the capture date."
+    },
+    {
+      "code": "OBSERVATION_DATE_INVALID",
+      "severity": "error",
+      "scope": "observation",
+      "description": "An observation week is not a valid source date."
+    },
+    {
+      "code": "OBSERVATION_OUTSIDE_SELECTION",
+      "severity": "error",
+      "scope": "observation",
+      "description": "A row is outside the declared geography, series, or date window."
+    },
+    {
+      "code": "VALIDATION_FAILED",
+      "severity": "error",
+      "scope": "input",
+      "description": "A validation failure without a more specific typed code occurred."
+    },
+    {
+      "code": "OBSERVATION_MISSING",
+      "severity": "review",
+      "scope": "observation",
+      "description": "No row exists for an expected series-week slot."
+    },
+    {
+      "code": "OBSERVATION_DUPLICATE",
+      "severity": "review",
+      "scope": "observation",
+      "description": "Multiple rows occupy one series-week slot; all are quarantined."
+    },
+    {
+      "code": "OBSERVATION_RELEASE_INVALID",
+      "severity": "review",
+      "scope": "observation",
+      "description": "Release date is malformed or precedes its observation week."
+    },
+    {
+      "code": "OBSERVATION_SUPPRESSED",
+      "severity": "review",
+      "scope": "observation",
+      "description": "A required value is marked suppressed by the source."
+    },
+    {
+      "code": "OBSERVATION_UNAVAILABLE",
+      "severity": "review",
+      "scope": "observation",
+      "description": "A required value is unavailable in the source."
+    },
+    {
+      "code": "OBSERVATION_VALUES_INVALID",
+      "severity": "review",
+      "scope": "observation",
+      "description": "Counts or percentage violate finite/range/count rules."
+    },
+    {
+      "code": "OBSERVATION_PERCENT_MISMATCH",
+      "severity": "review",
+      "scope": "observation",
+      "description": "Displayed percentage differs from the count ratio beyond rounding tolerance."
+    },
+    {
+      "code": "OBSERVATION_ZERO_TESTS",
+      "severity": "info",
+      "scope": "observation",
+      "description": "Zero tests were reported; positivity is undefined."
+    }
+  ]
+}

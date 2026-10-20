@@ -1,0 +1,83 @@
+{
+  "search_date": "2026-10-20",
+  "round": "02",
+  "scope": "Round 2 (same date as round 1): stable typed preflight failures and machine-readable diagnostic contracts for aggregate surveillance audits.",
+  "inclusion_criteria": [
+    "Publications dated 2022-01-01 through 2026-10-20 addressing validation stages or data-quality problems in surveillance",
+    "Official specifications relevant to separating machine error identifiers from human detail"
+  ],
+  "exclusion_criteria": [
+    "Validation performance claims not supported by the selected study",
+    "Unrelated surveillance algorithms or operational disease inference"
+  ],
+  "searches": [
+    {
+      "source": "PubMed connector",
+      "query": "surveillance[Title] AND \"data quality\"[Title] AND (framework[Title] OR validation[Title])",
+      "date_from": "2022/01/01",
+      "date_to": "2026/10/20",
+      "date_type": "publication",
+      "sort": "relevance",
+      "max_results": 20,
+      "offset": 0,
+      "reported_total": 1,
+      "returned_count": 1,
+      "retrieved_ids": [
+        "38870031"
+      ],
+      "next_offset": null,
+      "limits": "All returned records screened. Narrow query; not an exhaustive search."
+    },
+    {
+      "source": "Official IETF specification",
+      "query": "https://www.rfc-editor.org/rfc/rfc9457.html",
+      "reported_total": null,
+      "returned_count": 1,
+      "retrieved_ids": [
+        "RFC9457"
+      ],
+      "access": "Sections 1 and 3.1 inspected from official HTML; published July 2023",
+      "decision": "include",
+      "limit": "HTTP specification used as a design precedent only; CLI does not claim RFC conformance"
+    },
+    {
+      "source": "Official specification lookup",
+      "query": "https://specs.frictionlessdata.io/validation-report/",
+      "reported_total": null,
+      "returned_count": 0,
+      "retrieved_ids": [],
+      "access": "Two open attempts returned inaccessible/internal error",
+      "decision": "exclude",
+      "limit": "Unavailable; no substantive claims drawn from this source"
+    }
+  ],
+  "screening": [
+    {
+      "pmid": "38870031",
+      "title": "Validation of Multi-State EHR-Based Network for Disease Surveillance (MENDS) Data and Implications for Improving Data Quality and Representativeness.",
+      "doi": "10.5888/pcd21.230409",
+      "reported_publication_date": "2024 Jun 13",
+      "decision": "include",
+      "reason": "Primary validation-workflow study; EHR setting differs from NREVSS.",
+      "access": "PubMed abstract plus first 30,000 PMC full-text characters; no supplements"
+    }
+  ],
+  "counts": {
+    "pubmed_returned": 1,
+    "unique_records_screened": 1,
+    "pubmed_publications_cited": 1
+  },
+  "full_text": {
+    "pmid": "38870031",
+    "pmcid": "PMC11192496",
+    "truncated": true,
+    "characters_returned": 30000,
+    "total_characters": 34784,
+    "supplementary_review": "Not performed"
+  },
+  "limits": [
+    "Same-day second implementation scope; not elapsed-time surveillance or a new cohort",
+    "Single reviewer, one narrow query, no formal risk-of-bias scoring",
+    "Original round1 search-log.json preserved; counts are round2 only"
+  ]
+}

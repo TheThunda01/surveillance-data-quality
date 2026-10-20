@@ -10,12 +10,15 @@ This is a small, inspectable audit before describing a public surveillance extra
 
 A malformed contract exits with status 2 and a readable error. A valid contract can still contain absent, suppressed, unavailable, or invalid observation slots: these appear in the JSON counts and set `review_required` to true. That flag covers these row conditions only. False does **not** mean no scientific or provenance review is needed. A checksum detects changed bytes relative to the supplied manifest; it does not authenticate a publisher when both files can be edited together.
 
+Add `--diagnostics-json` to emit the [version 1.0 diagnostic envelope](diagnostics.md), including stable finding codes and locations, on success or failure. Rejected input returns exit 2 and a null summary; a completed audit with review findings returns exit 0 and `status: review`. Zero tests remain an informational finding, separate from missing reports. Argument-parsing errors retain argparse's text output.
+
 `public_audit.py` uses the same loader and writes CSV, JSON, Markdown, and SVG into a chosen output directory. Missing data remain separate from observed zeros. The adapter deliberately supports only its documented schema; a provider change needs inspection and tests before a contract update. See the [field dictionary](public-data-dictionary.md) and [captured provenance](../data/public/manifest.json).
 
 ## Worked use case
 
 ```sh
 python src/validate_snapshot.py
+python src/validate_snapshot.py --diagnostics-json
 python src/public_audit.py --output /tmp/public-audit
 ```
 
@@ -36,4 +39,4 @@ There is one genuine CDC capture, so the bundled project cannot measure historic
 1. Archive scheduled captures with explicit retention. Acceptance: two independently retrieved, dated releases reproduce a comparison without changing either original.
 2. Add contract migration fixtures. Acceptance: a documented provider schema change is rejected by version 1.0 and accepted only by a separately tested migration.
 3. Add laboratory participation denominators if publicly documented. Acceptance: coverage states its exact eligible-laboratory definition and never substitutes extract completeness.
-4. Add a machine-readable finding taxonomy. Acceptance: each existing failure has a stable code and tests prove that codes preserve missing-versus-zero distinctions.
+4. Add an example downstream consumer of the diagnostic contract. Acceptance: it handles passed, review, rejected, and unknown additive codes without matching human messages or discarding flagged data automatically.

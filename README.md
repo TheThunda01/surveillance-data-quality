@@ -41,6 +41,14 @@ python src/validate_snapshot.py
 
 [Expected preflight output](examples/snapshot_preflight.json) and [the input/output contract](docs/practical-use.md) explain what a passing check means.
 
+For a versioned result that a script can inspect on success or failure:
+
+```sh
+python src/validate_snapshot.py --diagnostics-json
+```
+
+The [diagnostic contract and stable codes](docs/diagnostics.md) separate malformed input, observations needing review, and informational zero-denominator findings. The default command keeps its earlier output format.
+
 ## Example results
 
 All **123 requested series-week records** were present and usable in the captured file: 41 weeks for each of three categories. Their count-derived percentages agreed with the source's displayed percentages within two-decimal rounding.
@@ -60,6 +68,8 @@ The chart shows unsmoothed count ratios. The [trailing-window table](results_pub
 ## Practical use and limitations
 
 Use this as a reproducible extraction and review exercise. The [practical guide](docs/practical-use.md) distinguishes automated checks from source and scientific review.
+
+In diagnostic mode, rejected input exits 2; a completed audit with row findings exits 0 and reports `status: review`. A caller must inspect status and findings, not treat exit 0 as scientific approval.
 
 ### Inspect changing test denominators
 
@@ -111,6 +121,8 @@ The comparison keeps both releases and reports changed counts, percentages, and 
 | [Practical use](docs/practical-use.md) | Input/output contract, worked use, failure behavior, next steps |
 | [Literature review](docs/literature-review.md) | Bounded evidence appraisal and implementation consequences |
 | [Search log](docs/search-log.json) | Exact searches, retrieved IDs, and screening decisions |
+| [Round 2 evidence update](docs/search-update-02.json) | Same-day, narrower search supporting reusable diagnostics |
+| [Diagnostic contract](docs/diagnostics.md) | Versioned fields, stable codes, severity and exit behavior |
 | [Related tools](docs/tools-and-design-notes.md) | Comparison with Delphi's version-aware data infrastructure |
 
 ## Development and reuse
