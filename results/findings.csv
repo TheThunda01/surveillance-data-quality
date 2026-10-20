@@ -1,0 +1,7 @@
+row,site_id,week_start,severity,code
+4,demo_C,2026-01-05,review,late_report
+5,demo_A,2026-01-12,error,duplicate_site_week
+6,demo_A,2026-01-12,error,duplicate_site_week
+9,demo_B,2026-01-19,error,positive_tests_exceed_tests
+12,demo_B,2026-01-26,error,reported_before_week_end
+13,demo_C,2026-01-26,error,invalid_tests_performed

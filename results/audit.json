@@ -1,0 +1,193 @@
+{
+  "summary": {
+    "data_status": "synthetic demonstration; no real people or sites",
+    "expected_site_weeks": 12,
+    "input_rows": 12,
+    "received_site_weeks": 11,
+    "missing_site_weeks": 1,
+    "invalid_site_weeks": 4,
+    "usable_site_weeks": 7,
+    "usable_fraction": 0.5833333333333334,
+    "excluded_input_rows": 5,
+    "late_usable_reports": 1,
+    "late_after_days": 7,
+    "median_delay_days_usable": 2,
+    "pooled_positive_tests": 14,
+    "pooled_tests_performed": 360,
+    "pooled_positivity": 0.03888888888888889
+  },
+  "slots": [
+    {
+      "site_id": "demo_A",
+      "week_start": "2026-01-05",
+      "received_rows": 1,
+      "status": "usable",
+      "positive_tests": 0,
+      "tests_performed": 100,
+      "positivity": 0.0,
+      "delay_days": 2
+    },
+    {
+      "site_id": "demo_B",
+      "week_start": "2026-01-05",
+      "received_rows": 1,
+      "status": "usable",
+      "positive_tests": 0,
+      "tests_performed": 0,
+      "positivity": null,
+      "delay_days": 1
+    },
+    {
+      "site_id": "demo_C",
+      "week_start": "2026-01-05",
+      "received_rows": 1,
+      "status": "usable",
+      "positive_tests": 3,
+      "tests_performed": 60,
+      "positivity": 0.05,
+      "delay_days": 12
+    },
+    {
+      "site_id": "demo_A",
+      "week_start": "2026-01-12",
+      "received_rows": 2,
+      "status": "invalid",
+      "positive_tests": null,
+      "tests_performed": null,
+      "positivity": null,
+      "delay_days": null
+    },
+    {
+      "site_id": "demo_B",
+      "week_start": "2026-01-12",
+      "received_rows": 1,
+      "status": "usable",
+      "positive_tests": 4,
+      "tests_performed": 50,
+      "positivity": 0.08,
+      "delay_days": 2
+    },
+    {
+      "site_id": "demo_C",
+      "week_start": "2026-01-12",
+      "received_rows": 0,
+      "status": "missing",
+      "positive_tests": null,
+      "tests_performed": null,
+      "positivity": null,
+      "delay_days": null
+    },
+    {
+      "site_id": "demo_A",
+      "week_start": "2026-01-19",
+      "received_rows": 1,
+      "status": "usable",
+      "positive_tests": 2,
+      "tests_performed": 40,
+      "positivity": 0.05,
+      "delay_days": 1
+    },
+    {
+      "site_id": "demo_B",
+      "week_start": "2026-01-19",
+      "received_rows": 1,
+      "status": "invalid",
+      "positive_tests": null,
+      "tests_performed": null,
+      "positivity": null,
+      "delay_days": null
+    },
+    {
+      "site_id": "demo_C",
+      "week_start": "2026-01-19",
+      "received_rows": 1,
+      "status": "usable",
+      "positive_tests": 1,
+      "tests_performed": 20,
+      "positivity": 0.05,
+      "delay_days": 2
+    },
+    {
+      "site_id": "demo_A",
+      "week_start": "2026-01-26",
+      "received_rows": 1,
+      "status": "usable",
+      "positive_tests": 4,
+      "tests_performed": 90,
+      "positivity": 0.044444444444444446,
+      "delay_days": 0
+    },
+    {
+      "site_id": "demo_B",
+      "week_start": "2026-01-26",
+      "received_rows": 1,
+      "status": "invalid",
+      "positive_tests": null,
+      "tests_performed": null,
+      "positivity": null,
+      "delay_days": null
+    },
+    {
+      "site_id": "demo_C",
+      "week_start": "2026-01-26",
+      "received_rows": 1,
+      "status": "invalid",
+      "positive_tests": null,
+      "tests_performed": null,
+      "positivity": null,
+      "delay_days": null
+    }
+  ],
+  "findings": [
+    {
+      "row": 4,
+      "site_id": "demo_C",
+      "week_start": "2026-01-05",
+      "severity": "review",
+      "code": "late_report"
+    },
+    {
+      "row": 5,
+      "site_id": "demo_A",
+      "week_start": "2026-01-12",
+      "severity": "error",
+      "code": "duplicate_site_week"
+    },
+    {
+      "row": 6,
+      "site_id": "demo_A",
+      "week_start": "2026-01-12",
+      "severity": "error",
+      "code": "duplicate_site_week"
+    },
+    {
+      "row": 9,
+      "site_id": "demo_B",
+      "week_start": "2026-01-19",
+      "severity": "error",
+      "code": "positive_tests_exceed_tests"
+    },
+    {
+      "row": 12,
+      "site_id": "demo_B",
+      "week_start": "2026-01-26",
+      "severity": "error",
+      "code": "reported_before_week_end"
+    },
+    {
+      "row": 13,
+      "site_id": "demo_C",
+      "week_start": "2026-01-26",
+      "severity": "error",
+      "code": "invalid_tests_performed"
+    }
+  ],
+  "provenance": {
+    "inputs": {
+      "reports.csv": "1b5e76dec7705bd3c8aece5c7394890d217ffa910f8f77d688bf8485b67d2bdd",
+      "calendar.csv": "ed1b866b5db15a4e94e134e3dbcc9812402b02516cad1326d71447db5dd0bbf3"
+    },
+    "method": "row validation, quarantine, then expected-calendar SQL left join",
+    "version": "1.0.0"
+  }
+}

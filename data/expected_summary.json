@@ -1,0 +1,13 @@
+{
+  "expected_site_weeks": 12,
+  "input_rows": 12,
+  "received_site_weeks": 11,
+  "missing_site_weeks": 1,
+  "invalid_site_weeks": 4,
+  "usable_site_weeks": 7,
+  "excluded_input_rows": 5,
+  "late_usable_reports": 1,
+  "median_delay_days_usable": 2,
+  "pooled_positive_tests": 14,
+  "pooled_tests_performed": 360
+}

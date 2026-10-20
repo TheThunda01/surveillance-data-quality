@@ -1,0 +1,13 @@
+site_id,week_start,received_rows,status,positive_tests,tests_performed,positivity,delay_days
+demo_A,2026-01-05,1,usable,0,100,0.0,2
+demo_B,2026-01-05,1,usable,0,0,,1
+demo_C,2026-01-05,1,usable,3,60,0.05,12
+demo_A,2026-01-12,2,invalid,,,,
+demo_B,2026-01-12,1,usable,4,50,0.08,2
+demo_C,2026-01-12,0,missing,,,,
+demo_A,2026-01-19,1,usable,2,40,0.05,1
+demo_B,2026-01-19,1,invalid,,,,
+demo_C,2026-01-19,1,usable,1,20,0.05,2
+demo_A,2026-01-26,1,usable,4,90,0.044444444444444446,0
+demo_B,2026-01-26,1,invalid,,,,
+demo_C,2026-01-26,1,invalid,,,,
