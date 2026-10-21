@@ -1,18 +1,18 @@
 # Surveillance data quality
 
-A reproducible Python and SQLite project about a practical question: **what information do we actually have before interpreting a surveillance curve?**
+A reproducible Python project using SQLite, a database engine, to ask a practical question: **what information do we actually have before interpreting a surveillance curve?**
 
 ## Why this project
 
 **Start here:** [Background, rationale, and key themes](docs/project-context.md). Then read [the biology and concepts](docs/biology-and-concepts.md) for an explanation of the measurements.
 
-The main worked example now uses a pinned **real CDC NREVSS aggregate dataset**. It checks weekly test counts and denominators, quantifies coverage of the requested extraction window, and shows how summaries change when recent weeks are left out. A separate version-history engine demonstrates how to reconstruct reports available by a given date without letting later revisions leak backward.
+The main worked example uses a pinned (fixed and saved) **real aggregate dataset from the Centers for Disease Control and Prevention (CDC)**. It comes from the National Respiratory and Enteric Virus Surveillance System (NREVSS). Aggregate data combine many test results into counts. It checks weekly test counts and denominators, quantifies coverage of the requested extraction window, and shows how summaries change when recent weeks are left out. A separate version-history engine demonstrates how to reconstruct reports available by a given date without letting later revisions leak backward.
 
 The original synthetic audit remains as a small, easy-to-inspect test case. The real data and synthetic examples are labeled separately throughout.
 
 ## What it does
 
-The public audit verifies the capture contract, preserves absent and suppressed observations, checks count-derived percentages, and compares consecutive test denominators. Separate synthetic examples exercise SQL calendar joins and issue-date revision handling. No epidemiological model is fitted.
+The public audit verifies the capture contract—the required files and rules for a saved download—preserves absent and suppressed observations, checks count-derived percentages, and compares consecutive test denominators (the counts divided into positive results). Separate synthetic examples exercise Structured Query Language (SQL) calendar joins and issue-date revision handling. A join matches records between tables. No epidemiological model is fitted. See the [glossary](docs/glossary.md) for the scientific and computing vocabulary used throughout this project.
 
 ## Quick start
 
@@ -25,7 +25,7 @@ python src/audit.py
 python -m unittest discover -s tests -v
 ```
 
-Run these commands from the repository root. The public analysis verifies the pinned file's SHA-256 before reading it. The commands write to three separate output directories.
+Run these commands from the repository root. The public analysis verifies the pinned file's SHA-256 checksum, a fingerprint of its bytes, before reading its records. The commands write to three separate output directories.
 
 | Example | Input | What to read |
 | --- | --- | --- |
@@ -33,7 +33,7 @@ Run these commands from the repository root. The public analysis verifies the pi
 | As-of report histories | Explicitly synthetic issue dates and revisions | [Vintage analysis](results_vintages/report.md) |
 | Basic SQL audit | Explicitly synthetic clinic reports with planted errors | [Basic audit](results/report.md) |
 
-The new preflight prints an aggregate contract check without writing files:
+The preflight, a check performed before analysis, prints an aggregate contract check without writing files:
 
 ```sh
 python src/validate_snapshot.py
@@ -56,8 +56,8 @@ All **123 requested series-week records** were present and usable in the capture
 | CDC series | Positive tests / tests in the selected window | Pooled positivity |
 | --- | ---: | ---: |
 | Adenovirus | 21,057 / 799,289 | 2.634% |
-| HMPV | 24,375 / 791,964 | 3.078% |
-| PIV | 23,015 / 875,604 | 2.628% |
+| Human metapneumovirus (HMPV) | 24,375 / 791,964 | 3.078% |
+| Parainfluenza viruses (PIV) | 23,015 / 875,604 | 2.628% |
 
 These are summaries of reported tests. A complete extract does not establish complete laboratory reporting, unique-patient coverage, population prevalence, or clinical validity. Each category keeps its own denominator; counts are never pooled across categories. This is a data-quality worked example, not an outbreak forecast.
 
@@ -73,7 +73,7 @@ In diagnostic mode, rejected input exits 2; a completed audit with row findings 
 
 ### Inspect changing test denominators
 
-The public audit now reports consecutive-week test-count ratios in each category. By default, it flags absolute changes **greater than 50%** for review. Flags do not exclude data or change validity decisions. The setting is illustrative, not a validated surveillance threshold.
+The public audit reports consecutive-week test-count ratios in each category. By default, it flags absolute changes **greater than 50%** for review. Flags do not exclude data or change validity decisions. The setting is illustrative, not a validated surveillance threshold.
 
 ```sh
 python src/public_audit.py --denominator-change-threshold 0.2 --output results_denominator_20pct
@@ -93,7 +93,7 @@ python src/vintage_audit.py --as-of 2026-10-12 --grace-days 7 --output results_v
 
 The included histories are invented. For the October 20 cutoff, eight of nine due slots have usable reports, one is absent, and three selected reports have revisions. The seven-day grace period is a demonstration choice. This is not a measurement of CDC reporting delays.
 
-Mellor and colleagues' [2026 peer-reviewed review](https://doi.org/10.1371/journal.pdig.0001759) explains why reporting dates and backfilled revisions matter when judging surveillance data retrospectively. Our [methods](docs/public-data-methods.md) connect that reasoning to the implementation and make its limits explicit. The published [2026 MMWR NREVSS analysis](https://doi.org/10.15585/mmwr.mm7506a2) also discusses participation and representativeness constraints; this repository does not reproduce that article's results.
+[Mellor et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/42832413/) explain why reporting dates and backfilled revisions matter when judging surveillance data retrospectively. Our [methods](docs/public-data-methods.md) connect that reasoning to the implementation and make its limits explicit. The published NREVSS analysis by [Silk et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/41712508/) also discusses participation and representativeness constraints; this repository does not reproduce that article's results.
 
 ### Capture and compare a future release
 
@@ -105,12 +105,17 @@ python src/public_audit.py --snapshot snapshots/new_capture --output results_new
 python src/compare_snapshots.py --old data/public --new snapshots/new_capture --output results_comparison
 ```
 
-The comparison keeps both releases and reports changed counts, percentages, and availability statuses. We currently include one real capture, so no historical revision rate is claimed. The source `posted` date is release metadata, not a specimen or individual laboratory submission date.
+The comparison keeps both releases and reports changed counts, percentages, and availability statuses. We currently include one real capture, so no historical revision rate is claimed. This adapter treats `posted` as release/update-date metadata. The captured metadata do not establish a specimen, testing, or individual laboratory submission time; see the [timing assumptions](docs/assumptions.md).
 
 ## Documentation
 
 | Guide | What it covers |
 | --- | --- |
+| [Glossary](docs/glossary.md) | Scientific and computing terms in plain language |
+| [Assumptions](docs/assumptions.md) | Reasons, checks, and consequences if assumptions fail |
+| [References](docs/references.md) | Complete citations and the role of each source |
+| [Reference audit](docs/reference-audit.json) | Source-by-source verification and access limits |
+| [Editorial and scientific review](docs/review-2026-10-20.md) | Corrections and checks in this review |
 | [Project context](docs/project-context.md) | Background, rationale, and key themes |
 | [Biology and concepts](docs/biology-and-concepts.md) | What respiratory test positivity measures |
 | [Public methods and references](docs/public-data-methods.md) | Calculation choices, limitations, and scientific sources |
@@ -129,4 +134,4 @@ The comparison keeps both releases and reports changed counts, percentages, and 
 
 Run `python -m unittest discover -s tests -v`. Tests include malformed manifests, metadata/schema identity, unchanged input files, missing versus zero, duplicate quarantine, revision cutoffs, and undefined denominator ratios. Review [contribution and reproducibility expectations](CONTRIBUTING.md) before adapting the schema.
 
-Source: **CDC NREVSS**. The raw public records are retained unedited and are also available free from the [CDC dataset](https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb). Use of these materials and links does not imply endorsement by CDC, HHS, or the U.S. government. See [CDC's reuse policy](https://www.cdc.gov/other/agencymaterials.html) and the manifest's license note. Repository code uses the MIT license; the synthetic fixtures were generated for this project.
+Source: **CDC NREVSS**. The raw public records are retained unedited and are also available free from the [CDC dataset](https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb). Use of these materials and links does not imply endorsement by CDC, the Department of Health and Human Services (HHS), or the U.S. government. See [CDC's reuse policy](https://www.cdc.gov/other/agencymaterials.html) and the manifest's license note. Repository code uses the MIT license; the synthetic fixtures were generated for this project.

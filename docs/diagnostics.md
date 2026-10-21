@@ -1,6 +1,6 @@
 # Machine-readable preflight diagnostics
 
-The optional `--diagnostics-json` switch emits the same versioned JSON envelope whether the snapshot passes, needs row review, or is rejected. Without it, the existing summary and human-readable error behavior remain available.
+The optional `--diagnostics-json` switch emits the same versioned JavaScript Object Notation (JSON) envelope—a structured wrapper around the findings whether the snapshot passes, needs row review, or is rejected. Without it, the existing summary and human-readable error behavior remain available.
 
 This envelope covers preflight execution after command-line parsing. Invalid command-line arguments still produce argparse's text error and exit status 2.
 
@@ -30,12 +30,14 @@ In this version, invalid manifests or structural/source failures stop at the fir
 
 ## Stable codes, changing prose
 
-Consumers should branch on `diagnostics_version` and `code`, not English messages. Typed exceptions assign codes where a check actually fails; code selection does not parse error strings. File I/O, text decoding, CSV parsing, and JSON syntax have separate categories. `VALIDATION_FAILED` is an explicit generic fallback for a validation exception without a specific type; it makes no claim about its cause.
+Consumers should branch on `diagnostics_version` and `code`, not English messages. Typed exceptions assign codes where a check actually fails; code selection does not parse error strings. File input/output (I/O), text decoding, comma-separated values (CSV) parsing, and JSON syntax have separate categories. `VALIDATION_FAILED` is an explicit generic fallback for a validation exception without a specific type; it makes no claim about its cause.
 
 The [catalog](../schemas/preflight-diagnostic-codes-v1.json) is the machine-readable list of current meanings and severities. Codes retain their meanings within major version 1. Consumers should tolerate added fields or unfamiliar additive codes when accepting a later minor version, while applying their own handling policy. The checked-in schema describes exactly version 1.0.
 
-This is a CLI format designed for this project, not an implementation of an HTTP standard. [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) provides a useful design precedent for separating a machine problem identifier from human-readable details. No RFC code or third-party validation library is copied or required.
+This is a command-line interface (CLI) format designed for this project, not an implementation of a Hypertext Transfer Protocol (HTTP) standard. [Nottingham et al. (2023), RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) provides a useful design precedent for separating a machine problem identifier from human-readable details. No RFC code or third-party validation library is copied or required.
 
 ## Verification on 2026-10-20
 
 All **74 tests** passed, including actual-input regressions for distinct typed errors and missing-versus-zero findings. The three original analyses reproduced their checked-in outputs byte for byte. The original preflight example also remains unchanged, and the new passed/rejected diagnostic examples reproduce their JSON. Source data, licenses, baseline results, and the round-1 search log were preserved. These are local checks; they do not establish epidemiological validity or a hosted CI result.
+
+For terminology and complete source details, see the [glossary](glossary.md) and [references](references.md). The [dated review](review-2026-10-20.md) records the checks repeated during the editorial review.

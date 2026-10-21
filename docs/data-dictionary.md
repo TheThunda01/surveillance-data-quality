@@ -18,8 +18,10 @@ The calendar must have unique keys. The reporting table may contain duplicate ke
 
 `slots.csv` contains one row per expected key. `status` is `missing`, `invalid`, or `usable`; count fields are blank when unusable. Zero tests are valid and produce blank positivity. `delay_days` is `reported_on − (week_start + 6 days)` and appears only for usable rows.
 
-`findings.csv` contains one row per finding. `row` is the original CSV line number, including the header. `error` excludes that input row from summaries; `review` flags a late usable report. Multiple errors may belong to one row.
+`findings.csv` contains one row per finding. `row` is the header-plus-record index in the original comma-separated values (CSV) file. It matches the physical line for this fixture; quoted multiline records can differ. `error` excludes that input row from summaries; `review` flags a late usable report. Multiple errors may belong to one row.
 
-`audit.json` includes the same tables, summary counts, a method label, and SHA-256 fingerprints of the inputs. JSON uses `null` where a ratio or delay is undefined. `usable_fraction` is usable expected slots / expected slots. `pooled_positivity` is a proportion between zero and one, not a percentage; multiply by 100 for display.
+`audit.json` includes the same tables, summary counts, a method label, and SHA-256 checksums (file fingerprints) of the inputs. JSON uses `null` where a ratio or delay is undefined. `usable_fraction` is usable expected slots / expected slots. `pooled_positivity` is a proportion between zero and one, not a percentage; multiply by 100 for display.
 
 Open exported CSVs as data, not executable spreadsheet formulas, when adapting this tool to arbitrary external identifiers. The demo identifiers contain no formulas.
+
+See the [glossary](glossary.md) for computing and statistical terms, and [assumptions](assumptions.md) for the expected calendar and reporting-delay definitions.

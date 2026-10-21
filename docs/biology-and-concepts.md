@@ -2,37 +2,37 @@
 
 ## A surveillance number is an observation, not the whole picture
 
-Respiratory surveillance brings together observations about illness, testing, and healthcare use. This project examines one part of that picture: weekly laboratory testing aggregates. Its source is the National Respiratory and Enteric Virus Surveillance System (NREVSS), to which participating laboratories voluntarily report. The information can describe patterns in submitted test results, but it does not enumerate every infection in the country. The distinction matters before calculating a rate or interpreting a line chart. [1, 3]
+Respiratory surveillance brings together observations about illness, testing, and healthcare use. This project examines one part of that picture: weekly laboratory testing aggregates. Its source is the National Respiratory and Enteric Virus Surveillance System (NREVSS), to which participating laboratories voluntarily report. The information can describe patterns in submitted test results, but it does not enumerate every infection in the country. The distinction matters before calculating a proportion or interpreting a line chart ([CDC, 2025a](https://www.cdc.gov/nrevss/php/dashboard/index.html); [Silk et al., 2026](https://pubmed.ncbi.nlm.nih.gov/41712508/)).
 
 ## What NAAT and PCR mean here
 
-A nucleic acid amplification test, or NAAT, detects genetic material associated with a target organism. Polymerase chain reaction, or PCR, is one type of NAAT. These are different from antigen tests, which detect viral components such as proteins. The dataset identifies its test category as NAAT, so the analysis keeps that category rather than treating all testing technologies as interchangeable. [2]
+A nucleic acid amplification test, or NAAT, detects genetic material associated with a target organism; nucleic acids are molecules such as DNA and RNA that carry genetic information. Polymerase chain reaction, or PCR, is one type of NAAT. These are different from antigen tests, which detect viral components such as proteins. The dataset identifies its test category as NAAT, so the analysis keeps that category rather than treating all testing technologies as interchangeable ([CDC, 2025b](https://www.cdc.gov/respiratory-viruses/prevention/testing.html)).
 
-The repository receives aggregate counts of results, not laboratory measurements for an individual sample. It therefore cannot assess a particular assay's sensitivity, specificity, sample quality, or a person's clinical condition. A “positive” in this analysis means a result counted as positive by the contributing testing system. It is not a measurement of disease severity, nor does this table independently establish which organism caused someone's symptoms.
+The repository receives aggregate counts of results, not laboratory measurements for an individual sample. It therefore cannot assess a particular assay's sensitivity (ability to detect a target when present), specificity (ability to give a negative result when the target is absent), sample quality, or a person's clinical condition. An assay is a measurement procedure. A “positive” in this analysis means a result counted as positive by the contributing testing system. It is not a measurement of disease severity, nor does this table independently establish which organism caused someone's symptoms.
 
 ## Why these three categories were chosen
 
 The worked example includes Adenovirus, human metapneumovirus (HMPV), and parainfluenza viruses (PIV). These are source categories already supplied by NREVSS. The selected national “Combined Type” rows provide test counts, positive detections, and percentages for a manageable common window. Their usefulness here is methodological: the counts let a reader check the percentages and inspect changing denominators. They were not selected because they represent every respiratory infection or because one is expected to predict another.
 
-The categories are also not identical biological units. In the source, PIV combines types 1–4, and HMPV is reported without separating types A and B. This project preserves those definitions and does not infer type-specific behavior. [1]
+The categories are also not identical biological units. CDC describes PIV types 1–4 in NREVSS ([CDC, 2025a](https://www.cdc.gov/nrevss/php/dashboard/index.html)). This extract labels both PIV and HMPV as `Combined Type` and provides no separate type-specific counts. The project preserves those rows and does not infer behavior for a particular type.
 
 ## The denominator determines the question
 
-Here, weekly positivity is positive detections divided by tests, multiplied by 100. It answers: “What percentage of the reported tests in this category were positive?” It does not answer: “What percentage of people in the population were infected?” The source can include multiple specimens from one patient, while infections in people who were never tested are outside the table. [1]
+Here, weekly positivity is positive detections divided by tests, multiplied by 100. It answers: “What percentage of the reported tests in this category were positive?” It does not answer: “What percentage of people in the population were infected?” These aggregate records do not identify unique patients, so the project cannot rule out repeated testing or count people. Infections in people who were never tested are outside the table. Population prevalence means the proportion of people with a condition in a defined population and period; it requires a different denominator.
 
 Consider a purely arithmetic example: 10 positives among 100 tests is 10%; 10 positives among 50 tests is 20%. The numerator did not change. This does not tell us why testing decreased or what happened to infections. It shows why both counts belong beside the percentage. Similarly, percentages across weeks are pooled using summed numerators and denominators, not by giving a small testing week the same weight as a large one. Separate viral categories remain separate because their tested samples need not represent the same people.
 
 ## Observation time and information availability differ
 
-An observation week describes when the counted testing occurred. An issue date describes when a version became available for analysis. A later correction can change the value attached to an earlier week. A retrospective dataset may therefore contain information that an analyst could not have known at the time. Mellor and colleagues explain why this distinction matters when evaluating surveillance indicators. [4]
+The observation week is the surveillance reference week assigned by the source. CDC describes collection-week reporting, but this extract does not contain individual collection or testing dates ([CDC, 2025a](https://www.cdc.gov/nrevss/php/dashboard/index.html)). An issue date describes when a version became available for analysis. A later correction can change the value attached to an earlier week. A retrospective dataset may therefore contain information that an analyst could not have known at the time. [Mellor et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/42832413/) explain why this distinction matters when evaluating surveillance indicators.
 
-Our pinned CDC file is one captured release. Its `posted` field is not a patient-level reporting-delay measurement. The separate synthetic vintage example demonstrates how actual issue dates can support as-of selection; it does not reconstruct an unavailable CDC history. Missing, not-yet-due, and zero are kept distinct.
+Our pinned CDC file is one captured release. The adapter treats its `posted` field as release/update metadata, an explicit [assumption](assumptions.md), rather than a patient-level reporting-delay measurement. The separate synthetic vintage example demonstrates how actual issue dates can support as-of selection; it does not reconstruct an unavailable CDC history. Missing, not-yet-due, and zero are kept distinct.
 
 ## Aggregation and seasonality need care
 
-A national weekly curve combines participating laboratories and locations. Changes in that mix can alter a summary even when local experiences differ. The 2026 MMWR respiratory-surveillance analysis describes both seasonal patterns and limits arising from voluntary participation and representativeness. Its findings concern its own study period; our shorter 2026 extract does not independently establish a recurring seasonal pattern. [3]
+A national weekly curve combines participating laboratories and locations. Changes in that mix can alter a summary even when local experiences differ. [Silk et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/41712508/), in the Morbidity and Mortality Weekly Report (MMWR), describe seasonal patterns and limits arising from voluntary participation and representativeness—how well the observed group reflects the population of interest. Its findings concern its own study period; our shorter 2026 extract does not independently establish a recurring seasonal pattern.
 
-An apparent rise or fall is therefore a starting point for checking definitions, coverage, testing practices, and timing. This repository does not estimate incidence, compare disease severity, or identify an outbreak from the curve.
+An apparent rise or fall is therefore a starting point for checking definitions, coverage, testing practices, and timing. This repository does not estimate incidence (new cases arising in a defined population over time), compare disease severity, or identify an outbreak from the curve.
 
 ## How the denominator diagnostic helps
 
@@ -40,9 +40,6 @@ The added diagnostic compares test counts in consecutive usable weeks within eac
 
 A zero previous denominator leaves the ratio undefined. A missing or suppressed week breaks the comparison; the program does not bridge that gap. No flags in a dataset would mean only that this particular check found no changes above the chosen setting. It would not establish stable participation or unbiased surveillance.
 
-## Sources
+## Sources and vocabulary
 
-1. [CDC NREVSS dataset and definitions](https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb).
-2. [CDC: Testing and Respiratory Viruses](https://www.cdc.gov/respiratory-viruses/prevention/testing.html).
-3. Silk et al. (2026). [Respiratory Virus Activity — United States, July 1, 2024–June 30, 2025](https://doi.org/10.15585/mmwr.mm7506a2).
-4. Mellor et al. (2026). [Recommendations for the analysis of leading indicators in epidemic surveillance](https://doi.org/10.1371/journal.pdig.0001759).
+The [reference list](references.md) gives complete citations. The [glossary](glossary.md) defines terms such as denominator, suppression, sensitivity analysis, and vintage. The [assumption register](assumptions.md) separates source evidence from choices made by this project.

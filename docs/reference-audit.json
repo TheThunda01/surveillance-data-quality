@@ -1,0 +1,387 @@
+{
+  "review_date": "2026-10-20",
+  "scope": "Scientific and editorial verification of all substantive supporting sources cited in authored Markdown; local code, dictionaries, examples and frozen artifacts cross-checked. Historical search logs and generated results preserved.",
+  "limits": [
+    "Targeted verification, not a new systematic search or exhaustive reference-chain review.",
+    "Relevant full-text sections inspected; no supplementary-file, formal risk-of-bias, or independent human duplicate review.",
+    "Current CDC metadata endpoint inaccessible and direct dataset page incomplete; local metadata are compact and do not fully define posted.",
+    "Sources screened out in historical logs are not supporting citations and were not reappraised.",
+    "Software tests do not establish operational, clinical, epidemiological, or source-authenticity validation."
+  ],
+  "references": [
+    {
+      "id": "german2001",
+      "source_type": "guideline",
+      "title": "Updated guidelines for evaluating public health surveillance systems: recommendations from the Guidelines Working Group.",
+      "authors": [
+        "R R German",
+        "L M Lee",
+        "J M Horan",
+        "R L Milstein",
+        "C A Pertowski",
+        "M N Waller",
+        "Guidelines Working Group"
+      ],
+      "year": 2001,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18634202/",
+      "checked_on": "2026-10-20",
+      "access_level": "full_text",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "Completeness, validity, and timeliness are distinct surveillance-evaluation concepts."
+      ],
+      "limitations": [
+        "Official CDC data-quality and timeliness sections inspected; does not establish a universal seven-day threshold or validate this software."
+      ],
+      "corrections": [
+        "Added verified PMID and quiz pagination; consolidated citation."
+      ],
+      "pmid": "18634202",
+      "alternate_urls": [
+        "https://www.cdc.gov/mmwr/preview/mmwrhtml/rr5013a1.htm"
+      ]
+    },
+    {
+      "id": "hohman2024",
+      "source_type": "research_article",
+      "title": "Validation of Multi-State EHR-Based Network for Disease Surveillance (MENDS) Data and Implications for Improving Data Quality and Representativeness.",
+      "authors": [
+        "Katherine H Hohman",
+        "Michael Klompas",
+        "Bob Zambarano",
+        "Hilary K Wall",
+        "Sandra L Jackson",
+        "Emily M Kraus"
+      ],
+      "year": 2024,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38870031/",
+      "checked_on": "2026-10-20",
+      "access_level": "full_text",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "Source and transformation problems can be found and revisited with contributing data partners."
+      ],
+      "limitations": [
+        "Full PMC text retrieved; relevant workflow and results inspected. Electronic health record setting differs from NREVSS; supplements not reviewed."
+      ],
+      "corrections": [
+        "Added complete authors and article identifier E43; distinguished scientific context from local diagnostic design."
+      ],
+      "doi": "10.5888/pcd21.230409",
+      "pmid": "38870031",
+      "alternate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC11192496/"
+      ]
+    },
+    {
+      "id": "mellor2026",
+      "source_type": "review_article",
+      "title": "Recommendations for the analysis of leading indicators in epidemic surveillance.",
+      "authors": [
+        "Jonathon Mellor",
+        "Maria Tang",
+        "Robert S Paton",
+        "Thomas Ward"
+      ],
+      "year": 2026,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42832413/",
+      "checked_on": "2026-10-20",
+      "access_level": "full_text",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "Coverage, reporting delays, revisions, and real-time information availability matter when appraising surveillance indicators."
+      ],
+      "limitations": [
+        "Full PMC body retrieved in two requests; relevant methods and interpretation inspected. Narrative recommendations do not validate local parameters, code, or predictions; supplements not reviewed."
+      ],
+      "corrections": [
+        "Removed an unnecessarily precise publication-day claim; retained verified volume 5, issue 10, article e0001759."
+      ],
+      "doi": "10.1371/journal.pdig.0001759",
+      "pmid": "42832413",
+      "alternate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13637922/"
+      ]
+    },
+    {
+      "id": "silk2026",
+      "source_type": "surveillance_report",
+      "title": "Respiratory Virus Activity - United States, July 1, 2024-June 30, 2025.",
+      "authors": [
+        "Benjamin J Silk",
+        "Mila M Prill",
+        "Amber K Winn",
+        "Monica E Patton",
+        "Heidi L Moline",
+        "Michael Melgar",
+        "Kevin C Ma",
+        "Clinton R Paden",
+        "Lydia J Atherton",
+        "Diba Khan",
+        "Christopher A Taylor",
+        "Ayzsa Tannis",
+        "Kadam Patel",
+        "Leah A Goldstein",
+        "Krista Kniss",
+        "Angiezel Merced-Morales",
+        "Natalie Thornburg",
+        "Fatimah S Dawood"
+      ],
+      "year": 2026,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41712508/",
+      "checked_on": "2026-10-20",
+      "access_level": "full_text",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "NREVSS uses passive voluntary aggregate laboratory reporting.",
+        "Participation and representativeness limitations constrain interpretation."
+      ],
+      "limitations": [
+        "Full PMC text retrieved; surveillance box and limitations inspected. Its NREVSS study window differs from this extract and from the broader report title. No results reproduced or validation transferred."
+      ],
+      "corrections": [
+        "Added verified issue 6 and pages 77-84; maintained distinct study periods."
+      ],
+      "doi": "10.15585/mmwr.mm7506a2",
+      "pmid": "41712508",
+      "alternate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12919848/"
+      ]
+    },
+    {
+      "id": "tang2025",
+      "source_type": "research_article",
+      "title": "Real-time forecasting of data revisions in epidemic surveillance streams.",
+      "authors": [
+        "Jingjing Tang",
+        "Aaron Rumack",
+        "Bryan Wilder",
+        "Roni Rosenfeld"
+      ],
+      "year": 2025,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41264651/",
+      "checked_on": "2026-10-20",
+      "access_level": "full_text",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "Numerator and denominator revision dynamics can differ; fractions can move in either direction."
+      ],
+      "limitations": [
+        "Full PMC body retrieved in two requests; introduction and relevant methods inspected. Forecasting results concern other streams and are not local performance evidence; supplements not reviewed."
+      ],
+      "corrections": [
+        "Added full bibliographic metadata and an explicit restriction on performance transfer."
+      ],
+      "doi": "10.1371/journal.pcbi.1013709",
+      "pmid": "41264651",
+      "alternate_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12646461/"
+      ]
+    },
+    {
+      "id": "cdc-nrevss-data",
+      "source_type": "dataset",
+      "title": "Percent positivity of respiratory viruses by nucleic acid amplification tests (NAATs), as reported on the National Respiratory and Enteric Virus Surveillance System (NREVSS) Dashboard",
+      "authors": [
+        "Centers for Disease Control and Prevention"
+      ],
+      "year": null,
+      "url": "https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "Dataset identity and frozen selected aggregate records.",
+        "Suppressed and unavailable notation is retained as missing, not zero."
+      ],
+      "limitations": [
+        "The current dataset page rendered only a shell in direct retrieval; indexed official text confirmed missing-value notation. The live metadata endpoint was inaccessible. Local frozen CSV, manifest, and compact metadata were inspected and checked by the loader. Full semantic definitions of posted and a patient-level timeline were not available. A matched digest is not independent authenticity verification."
+      ],
+      "corrections": [
+        "Qualified posted as an adapter interpretation, corrected overprecise observation-time wording, and removed unverified HMPV A/B detail."
+      ],
+      "version": "Repository capture 2026-10-20T16:58:50.140689+00:00; dataset rgnm-fkqb; data SHA-256 1ec420cf5a7e029b1f3649b1aebdc57c4000a0222aaf552077c1ab09b985808e",
+      "alternate_urls": [
+        "https://data.cdc.gov/api/views/rgnm-fkqb.json"
+      ]
+    },
+    {
+      "id": "cdc-nrevss-overview",
+      "source_type": "official_documentation",
+      "title": "The National Respiratory and Enteric Virus Surveillance System (NREVSS)",
+      "authors": [
+        "Centers for Disease Control and Prevention"
+      ],
+      "year": 2025,
+      "url": "https://www.cdc.gov/nrevss/php/dashboard/index.html",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "Voluntary weekly reporting of tests and positive results.",
+        "Collection-week reporting and monitored PIV types 1-4."
+      ],
+      "limitations": [
+        "Page dated June 18, 2025. The overview is not a full field-level specification for the downloaded CSV."
+      ],
+      "corrections": [
+        "Added direct official support for biology and timing context."
+      ]
+    },
+    {
+      "id": "cdc-testing",
+      "source_type": "official_documentation",
+      "title": "Testing and Respiratory Viruses",
+      "authors": [
+        "Centers for Disease Control and Prevention"
+      ],
+      "year": 2025,
+      "url": "https://www.cdc.gov/respiratory-viruses/prevention/testing.html",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "verified",
+      "supported_claims": [
+        "NAATs include PCR and differ from antigen tests."
+      ],
+      "limitations": [
+        "Page dated August 18, 2025. Does not establish accuracy of the assays represented in the dataset."
+      ],
+      "corrections": []
+    },
+    {
+      "id": "cdc-reuse",
+      "source_type": "official_policy",
+      "title": "Use of Agency Materials",
+      "authors": [
+        "Centers for Disease Control and Prevention"
+      ],
+      "year": null,
+      "url": "https://www.cdc.gov/other/agencymaterials.html",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "verified",
+      "supported_claims": [
+        "CDC describes public-domain use with exceptions, attribution, non-endorsement, and availability requirements."
+      ],
+      "limitations": [
+        "No publication date stated on the inspected page. The policy is not a dataset-specific license or a grant for every third-party contribution."
+      ],
+      "corrections": []
+    },
+    {
+      "id": "who-circulation",
+      "source_type": "official_documentation",
+      "title": "WHO COVID-19 dashboard: circulation",
+      "authors": [
+        "World Health Organization"
+      ],
+      "year": null,
+      "url": "https://data.who.int/dashboards/covid19/circulation",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "verified",
+      "supported_claims": [
+        "Positivity uses positive and processed samples.",
+        "Testing practices, reporting, and missing denominators limit interpretation."
+      ],
+      "limitations": [
+        "Methods and interpretation notes inspected; dynamic page. No WHO data or trend results are used in this project."
+      ],
+      "corrections": []
+    },
+    {
+      "id": "delphi-v5",
+      "source_type": "software_documentation",
+      "title": "Epidata API V5 documentation",
+      "authors": [
+        "Carnegie Mellon University Delphi Group"
+      ],
+      "year": null,
+      "url": "https://github.com/cmu-delphi/delphi-epidata/blob/603969199277177c2e3c612b13fa732f1698f99c/docs/api/v5.md",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "verified",
+      "supported_claims": [
+        "Archive endpoints return change records; snapshot endpoints return data states at selected times; source metadata are distinct."
+      ],
+      "limitations": [
+        "Entire pinned target file inspected. Source migration and coverage differ by dataset. No service behavior, integration, or local code reuse is claimed."
+      ],
+      "corrections": [],
+      "version": "603969199277177c2e3c612b13fa732f1698f99c",
+      "alternate_urls": [
+        "https://cmu-delphi.github.io/delphi-epidata/api/v5.html",
+        "https://github.com/cmu-delphi/delphi-epidata"
+      ]
+    },
+    {
+      "id": "delphi-v4",
+      "source_type": "software_documentation",
+      "title": "Manually Constructing API Queries: COVIDcast V4",
+      "authors": [
+        "Carnegie Mellon University Delphi Group"
+      ],
+      "year": null,
+      "url": "https://github.com/cmu-delphi/delphi-epidata/blob/603969199277177c2e3c612b13fa732f1698f99c/docs/api/covidcast_api_queries.md",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "The legacy documentation distinguishes as-of selection, issue dates, and lag."
+      ],
+      "limitations": [
+        "Entire pinned target file inspected; not a dependency and not an instruction to choose a legacy integration."
+      ],
+      "corrections": [
+        "Replaced moving dev-branch link with the verified pinned commit."
+      ],
+      "version": "603969199277177c2e3c612b13fa732f1698f99c"
+    },
+    {
+      "id": "delphi-license",
+      "source_type": "software_license",
+      "title": "The MIT License (MIT)",
+      "authors": [
+        "The Delphi Group at Carnegie Mellon University"
+      ],
+      "year": 2018,
+      "url": "https://github.com/cmu-delphi/delphi-epidata/blob/603969199277177c2e3c612b13fa732f1698f99c/LICENSE",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "verified",
+      "supported_claims": [
+        "Referenced repository uses the MIT license."
+      ],
+      "limitations": [
+        "Copyright year is 2018. License concerns the external software; no copied code or dataset rights are implied."
+      ],
+      "corrections": [],
+      "version": "603969199277177c2e3c612b13fa732f1698f99c"
+    },
+    {
+      "id": "rfc9457",
+      "source_type": "technical_standard",
+      "title": "Problem Details for HTTP APIs",
+      "authors": [
+        "M. Nottingham",
+        "E. Wilde",
+        "S. Dalal"
+      ],
+      "year": 2023,
+      "url": "https://www.rfc-editor.org/rfc/rfc9457.html",
+      "checked_on": "2026-10-20",
+      "access_level": "official_documentation",
+      "metadata_status": "corrected",
+      "supported_claims": [
+        "Separates a machine problem identifier from readable details."
+      ],
+      "limitations": [
+        "Header and relevant sections inspected. HTTP-specific standard used only as a design precedent; local CLI does not claim conformance."
+      ],
+      "corrections": [
+        "Added verified authors and publication month."
+      ],
+      "version": "RFC 9457, July 2023"
+    }
+  ]
+}
