@@ -40,6 +40,8 @@ The key of a version is `(site_id, week_end, issued_on)`. Multiple versions on d
 
 For each cutoff, `available_versions` counts only issued versions on or before it. `first_delay_days` and `selected_delay_days` are defined only from those available versions. `revision_*_delta` compares the selected version with the first available version when both have valid counts and can be negative. A delta is a difference; a negative correction is not a negative test count. No future values enter the calculation. $`\text{due\_on}=\text{week\_end}+\text{grace\_days}`$; grace is an explicit user choice.
 
+CSV exports prefix formula-like strings with an apostrophe, including markers after leading whitespace or a byte-order mark. JSON and source records preserve the original strings. Numeric corrections such as negative revision deltas remain numbers, and undefined values remain blank in CSV and null in JSON.
+
 ## Consecutive-week denominator diagnostics
 
 `results_public/denominator_changes.csv` compares each usable week with exactly the previous calendar week in the same category. `test_count_ratio` is $`\frac{\text{current tests}}{\text{previous tests}}`$; `relative_test_count_change` is $`\frac{\text{current}-\text{previous}}{\text{previous}}`$. The flag uses the absolute relative change and is strict: exactly 50% does not exceed a 0.5 threshold. It is a review aid, not a validity judgment or exclusion rule.

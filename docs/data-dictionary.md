@@ -22,6 +22,6 @@ The calendar must have unique keys. The reporting table may contain duplicate ke
 
 `audit.json` includes the same tables, summary counts, a method label, and SHA-256 checksums (file fingerprints) of the inputs. JSON uses `null` where a ratio or delay is undefined. `usable_fraction` is $`\frac{\text{usable expected slots}}{\text{expected slots}}`$. `pooled_positivity` is a proportion between zero and one, not a percentage; multiply by 100 for display.
 
-Open exported CSVs as data, not executable spreadsheet formulas, when adapting this tool to arbitrary external identifiers. The demo identifiers contain no formulas.
+CSV exports prefix formula-like text with an apostrophe when it begins with `=`, `+`, `-`, or `@`, including after leading whitespace or a byte-order mark. This protects identifiers and raw invalid values retained in findings. Numeric values and blank fields keep their existing representation; source files, audit records, and JSON retain the original text.
 
 See the [glossary](glossary.md) for computing and statistical terms, and [assumptions](assumptions.md) for the expected calendar and reporting-delay definitions.
