@@ -248,7 +248,7 @@ def write_csv(path:Path,rows:list[dict]):
         writer=csv.DictWriter(stream,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(spreadsheet_safe_rows(rows))
 
 
-def chart(slots:list[dict],path:Path):
+def chart(slots:list[dict],path:Path,manifest:dict):
     pathogens=list(dict.fromkeys(r['pathogen'] for r in slots))
     weeks=sorted({r['week_end'] for r in slots})
     ymax=max((r['calculated_percent_positive'] or 0 for r in slots if r['status']=='usable'),default=1)*1.15 or 1
@@ -278,9 +278,12 @@ def chart(slots:list[dict],path:Path):
         if parts:chunks.append(f'<polyline points="{" ".join(parts)}" fill="none" stroke="{colors[index%3]}" stroke-width="2.3"/>')
         x=80+index*230
         chunks += [f'<line x1="{x}" y1="469" x2="{x+28}" y2="469" stroke="{colors[index%3]}" stroke-width="3"/>',f'<text x="{x+36}" y="474" font-size="14">{escape(pathogen)}</text>']
-    chunks += ['<text x="75" y="510" font-size="12">Source: CDC NREVSS; Jan 3–Oct 10, 2026. Retrieved Oct 20, 2026.</text>',
+    selection=manifest['selection']
+    captured=datetime.fromisoformat(manifest['retrieved_at_utc']).date().isoformat()
+    source_note=f"Source: CDC NREVSS; {selection['first_week_end']}–{selection['last_week_end']}. Retrieved {captured}."
+    chunks += [f'<text x="75" y="510" font-size="12">{escape(source_note)}</text>',
                '<text x="75" y="529" font-size="12">Coverage here means rows in this extract, not all laboratories, patients, or infections. No CDC endorsement.</text>','</g></svg>']
-    path.write_text('\n'.join(chunks)+'\n')
+    path.write_text('\n'.join(chunks)+'\n', encoding='utf-8', newline='\n')
 
 
 def display_number(value, digits=3, signed=False):
@@ -312,9 +315,9 @@ def main():
         diagnostics=denominator_changes(result['slots'],args.denominator_change_threshold)
         result['denominator_change_diagnostics']=diagnostics
         args.output.mkdir(parents=True,exist_ok=True)
-        (args.output/'audit.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
+        (args.output/'audit.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n', encoding='utf-8', newline='\n')
         write_csv(args.output/'weekly_audit.csv',result['slots']);write_csv(args.output/'summary.csv',result['summary']);write_csv(args.output/'trailing_window_sensitivity.csv',sensitivity)
-        chart(result['slots'],args.output/'weekly_positivity.svg')
+        chart(result['slots'],args.output/'weekly_positivity.svg',manifest)
         write_csv(args.output/'denominator_changes.csv',diagnostics['rows'])
         write_csv(args.output/'denominator_diagnostic_summary.csv',diagnostics['summary'])
         report=['# Real public-data audit: CDC NREVSS','',
@@ -334,7 +337,7 @@ def main():
         report += [f"| {r['pathogen']} | {r['evaluable_consecutive_pairs']} | {r['flagged_pairs']} | {display_number(100*r['largest_absolute_change_fraction'] if r['largest_absolute_change_fraction'] is not None else None,2)}% |" for r in diagnostics['summary']]
         report += ['', '[Inspect the week-level counts and ratios](denominator_changes.csv). A change can reflect testing, participation, calendar effects, or other factors; this file does not identify its cause and is not an incidence or outbreak indicator.', '']
         report += ['', 'No adjustment for underreporting, causal effect, or outbreak forecast is fitted. The `posted` field is treated as release metadata, never as an individual laboratory submission date. See the methods for why complete-looking rows can still be provisional.','',f"[Original dataset]({manifest['source_page']}) · [Snapshot provenance](../data/public/manifest.json) · [Methods](../docs/public-data-methods.md)",'']
-        (args.output/'report.md').write_text('\n'.join(report))
+        (args.output/'report.md').write_text('\n'.join(report), encoding='utf-8', newline='\n')
         print(json.dumps({'input_rows':result['input_rows'],'expected_rows':result['expected_rows'],'summary':result['summary']},indent=2))
     except (ValueError,KeyError,OSError,csv.Error) as error:
         parser.exit(2,f'public audit failed: {error}\n')

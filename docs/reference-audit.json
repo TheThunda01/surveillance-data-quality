@@ -383,5 +383,17 @@
       ],
       "version": "RFC 9457, July 2023"
     }
-  ]
+  ],
+  "maintenance_review_2026_10_21": {
+    "date": "2026-10-21",
+    "scope": "Targeted checks supporting current claims and maintenance. Earlier reference entries retain their historical access levels; sources not listed here were not newly full-text appraised.",
+    "checks": [
+      {
+        "id": "cdc-nrevss-data",
+        "url": "https://data.cdc.gov/api/views/rgnm-fkqb.json",
+        "access": "official dataset metadata JSON",
+        "finding": "Metadata describe voluntary aggregate NAAT reporting, provisional/revisable data and test rather than patient counts. National/regional count fields are current-week totals. posted is defined as dataset publication date. The bundled older source snapshot is preserved."
+      }
+    ]
+  }
 }

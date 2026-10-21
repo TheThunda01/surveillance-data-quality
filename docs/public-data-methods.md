@@ -26,7 +26,7 @@ Pooled positivity is $`100\,\frac{\sum\text{detections}}{\sum\text{tests}}`$ sep
 
 The public analysis repeats the summary after excluding observations newer than 0, 7, 14, or 28 days before its analysis date. It reports the number of eligible weeks, the retained test-denominator fraction, and the change in pooled positivity in percentage points. These choices illustrate a reproducible sensitivity analysis; they are not recommended universal delay corrections.
 
-Every window uses the same downloaded release. Excluding recent observation weeks does **not** reconstruct the data available on a past date. The tool refuses an `--as-of` date before this snapshot's capture date to avoid that interpretation. The adapter interprets `posted` as release/update metadata. This is a working interpretation, not a complete source definition of the field. It is not used as an individual specimen date or laboratory receipt time. It therefore cannot estimate laboratory reporting-delay distributions from this single file.
+Every window uses the same downloaded release. Excluding recent observation weeks does **not** reconstruct the data available on a past date. The tool refuses an `--as-of` date before this snapshot's capture date to avoid that interpretation. The live CDC metadata checked on 21 October 2026 defines `posted` as the dataset publication date. This supports its use as release metadata; it is not an individual specimen date or laboratory receipt time. The older bundled metadata capture remains unchanged. This single file cannot estimate laboratory reporting-delay distributions.
 
 ## Consecutive-week denominator changes
 
