@@ -4,7 +4,7 @@
 
 Each expected key is one fictional clinic and one Monday-starting week. `positive_tests` counts positive test results within the same pool described by `tests_performed`. These are test counts, not unique patients, incident cases, or population denominators. Repeated testing and selection into testing are not modeled.
 
-The expected calendar is authoritative for this run. Coverage is reported two ways: submitted slots / expected slots and usable slots / expected slots. A missing slot has no submitted row; an invalid slot has submitted data that cannot pass this schema. Neither is converted into zero.
+The expected calendar is authoritative for this run. Coverage is reported two ways: $`\frac{\text{submitted slots}}{\text{expected slots}}`$ and $`\frac{\text{usable slots}}{\text{expected slots}}`$. A missing slot has no submitted row; an invalid slot has submitted data that cannot pass this schema. Neither is converted into zero.
 
 The script rejects invalid calendar definitions because a faulty expectation table would corrupt the audit denominator. Within the submitted report table, invalid rows are retained as findings and excluded from aggregates. Duplicate resolution requires a documented human decision outside this tool.
 

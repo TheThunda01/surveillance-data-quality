@@ -20,7 +20,7 @@ The calendar must have unique keys. The reporting table may contain duplicate ke
 
 `findings.csv` contains one row per finding. `row` is the header-plus-record index in the original comma-separated values (CSV) file. It matches the physical line for this fixture; quoted multiline records can differ. `error` excludes that input row from summaries; `review` flags a late usable report. Multiple errors may belong to one row.
 
-`audit.json` includes the same tables, summary counts, a method label, and SHA-256 checksums (file fingerprints) of the inputs. JSON uses `null` where a ratio or delay is undefined. `usable_fraction` is usable expected slots / expected slots. `pooled_positivity` is a proportion between zero and one, not a percentage; multiply by 100 for display.
+`audit.json` includes the same tables, summary counts, a method label, and SHA-256 checksums (file fingerprints) of the inputs. JSON uses `null` where a ratio or delay is undefined. `usable_fraction` is $`\frac{\text{usable expected slots}}{\text{expected slots}}`$. `pooled_positivity` is a proportion between zero and one, not a percentage; multiply by 100 for display.
 
 Open exported CSVs as data, not executable spreadsheet formulas, when adapting this tool to arbitrary external identifiers. The demo identifiers contain no formulas.
 
