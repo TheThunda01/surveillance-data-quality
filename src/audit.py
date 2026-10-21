@@ -11,6 +11,8 @@ import re
 import sqlite3
 from statistics import median
 
+from csv_export import spreadsheet_safe_rows
+
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_COLUMNS = {"site_id", "week_start", "positive_tests", "tests_performed", "reported_on"}
 CALENDAR_COLUMNS = {"site_id", "week_start"}
@@ -139,7 +141,7 @@ def save(result: dict, output: Path, source_paths: list[Path]) -> None:
         with (output / f"{name}.csv").open("w", newline="") as stream:
             writer = csv.DictWriter(stream, fieldnames=columns)
             writer.writeheader()
-            writer.writerows(result[name])
+            writer.writerows(spreadsheet_safe_rows(result[name]))
     summary = result["summary"]
     pct = summary["pooled_positivity"]
     value = "undefined (no usable tested samples)" if pct is None else f"{100*pct:.2f}%"
