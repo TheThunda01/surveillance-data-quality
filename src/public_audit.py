@@ -13,6 +13,7 @@ from pathlib import Path
 from audit import nonnegative_integer, parse_date, read_csv
 from snapshot_contract import validate_manifest
 from diagnostics import DiagnosticError, finding, read_json_document
+from csv_export import spreadsheet_safe_rows
 
 ROOT=Path(__file__).resolve().parents[1]
 FIELDS={'mmwrweek_end','level','state','tests','detections','percent_pos','subtype','pathogen','posted','tests_3wma','detections_5wma','percent_pos_3wma'}
@@ -244,7 +245,7 @@ def write_csv(path:Path,rows:list[dict]):
     if not rows:
         raise ValueError('cannot write an empty table without a schema')
     with path.open('w',newline='') as stream:
-        writer=csv.DictWriter(stream,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
+        writer=csv.DictWriter(stream,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(spreadsheet_safe_rows(rows))
 
 
 def chart(slots:list[dict],path:Path):
