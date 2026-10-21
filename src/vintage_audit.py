@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 
 from audit import nonnegative_integer, parse_date, read_csv
+from csv_export import spreadsheet_safe_rows
 
 ROOT = Path(__file__).resolve().parents[1]
 FIELDS = {'site_id', 'week_end', 'issued_on', 'positive_tests', 'tests_performed'}
@@ -133,13 +134,13 @@ def main():
         with (args.output/'snapshot.csv').open('w',newline='') as stream:
             writer=csv.DictWriter(stream,fieldnames=list(rows[0]))
             writer.writeheader()
-            writer.writerows({**r,'errors':';'.join(r['errors'])} for r in rows)
+            writer.writerows(spreadsheet_safe_rows({**r,'errors':';'.join(r['errors'])} for r in rows))
         sensitivity=[]
         for cutoff in [date(2026,10,5),date(2026,10,12),date(2026,10,20)]:
             sensitivity.append(reconstruct(observations,expected,cutoff,args.grace_days)['summary'])
         with (args.output/'as_of_sensitivity.csv').open('w',newline='') as stream:
             writer=csv.DictWriter(stream,fieldnames=list(sensitivity[0]))
-            writer.writeheader();writer.writerows(sensitivity)
+            writer.writeheader();writer.writerows(spreadsheet_safe_rows(sensitivity))
         s=result['summary']
         report=['# Synthetic report-vintage analysis','',f"As of {s['as_of']}, with a {s['grace_days']}-day grace period, {s['usable_due_slots']} of {s['expected_due_slots']} due slots have usable reports.",'',
         'This is an invented version-history exercise. It is separate from the real CDC snapshot. A report issued after the cutoff is excluded. A revision replaces an older report; it is not another batch of tests. Negative revision deltas are permitted corrections, not negative test counts.','',
