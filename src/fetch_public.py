@@ -67,7 +67,7 @@ def main():
         args.output.mkdir(parents=True,exist_ok=False)
         (args.output/manifest['data_file']).write_bytes(raw)
         (args.output/'source_metadata.json').write_bytes(metadata_bytes)
-        (args.output/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+        (args.output/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n', encoding='utf-8', newline='\n')
         print(json.dumps({'directory':str(args.output),'rows':len(rows),'sha256':manifest['sha256']},indent=2))
     except (ValueError,OSError,KeyError,csv.Error) as error:
         parser.exit(2,f'fetch failed: {error}\n')

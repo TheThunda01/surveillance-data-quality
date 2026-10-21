@@ -129,7 +129,7 @@ def main():
         result=reconstruct(observations,expected,args.as_of,args.grace_days)
         result['provenance']={'data_status':'synthetic report-vintage demonstration','input_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [args.observations,args.expected]}}
         args.output.mkdir(parents=True,exist_ok=True)
-        (args.output/'snapshot.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
+        (args.output/'snapshot.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n', encoding='utf-8', newline='\n')
         rows=result['slots']
         with (args.output/'snapshot.csv').open('w',newline='') as stream:
             writer=csv.DictWriter(stream,fieldnames=list(rows[0]))
@@ -147,7 +147,7 @@ def main():
         '| As of | Due slots | Usable | Unreported | Future versions excluded | Positives / tests |','| --- | ---: | ---: | ---: | ---: | --- |']
         report += [f"| {r['as_of']} | {r['expected_due_slots']} | {r['usable_due_slots']} | {r['unreported_due_slots']} | {r['future_versions_excluded']} | {r['positive_tests']} / {r['tests_performed']} |" for r in sensitivity]
         report += ['', 'These denominators differ because different weeks are due and different revisions were available. Comparing these aggregate percentages as disease trends would be misleading.','']
-        (args.output/'report.md').write_text('\n'.join(report))
+        (args.output/'report.md').write_text('\n'.join(report), encoding='utf-8', newline='\n')
         print(json.dumps(s,indent=2))
     except (ValueError,OSError,csv.Error) as error:
         parser.exit(2,f'vintage audit failed: {error}\n')

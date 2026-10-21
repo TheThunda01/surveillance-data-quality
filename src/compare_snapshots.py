@@ -40,7 +40,7 @@ def main():
             raise ValueError('output must not contain either source directory')
         result=compare(*load_snapshot(args.old),*load_snapshot(args.new))
         args.output.mkdir(parents=True,exist_ok=True)
-        (args.output/'comparison.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
+        (args.output/'comparison.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n', encoding='utf-8', newline='\n')
         write_csv(args.output/'comparison.csv',result['slots'])
         print(json.dumps({k:v for k,v in result.items() if k!='slots'},indent=2))
     except (ValueError,OSError,KeyError) as error:

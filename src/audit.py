@@ -136,7 +136,7 @@ def save(result: dict, output: Path, source_paths: list[Path]) -> None:
         "method": "row validation, quarantine, then expected-calendar SQL left join",
         "version": "1.0.0",
     }
-    (output / "audit.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
+    (output / "audit.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n", encoding="utf-8", newline="\n")
     for name, columns in [("slots", ["site_id", "week_start", "received_rows", "status", "positive_tests", "tests_performed", "positivity", "delay_days"]), ("findings", ["row", "site_id", "week_start", "severity", "code"])]:
         with (output / f"{name}.csv").open("w", newline="") as stream:
             writer = csv.DictWriter(stream, fieldnames=columns)
@@ -148,7 +148,7 @@ def save(result: dict, output: Path, source_paths: list[Path]) -> None:
     lines = ["# Synthetic surveillance audit", "", "These are invented aggregate records. No result describes an actual population.", "", "| Measure | Result |", "| --- | --- |"]
     lines.extend(f"| {k.replace('_', ' ')} | {v} |" for k, v in summary.items() if k != "data_status")
     lines += ["", f"Pooled test positivity is **{value}**, using only usable records. It is not a population prevalence estimate.", "", "Missing slots remain missing. Every duplicated key is quarantined in full; no version is selected automatically. Review findings.csv before changing the source data.", "", "Input fingerprints and row-level reasons are in audit.json.", ""]
-    (output / "report.md").write_text("\n".join(lines))
+    (output / "report.md").write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
 def main() -> None:

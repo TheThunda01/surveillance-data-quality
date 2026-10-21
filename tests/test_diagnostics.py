@@ -1,5 +1,6 @@
 from copy import deepcopy
 import csv
+import errno
 import hashlib
 import io
 import json
@@ -151,7 +152,18 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(exception_finding(FileNotFoundError('missing'))['code'],'FILE_IO_ERROR')
         self.assertEqual(exception_finding(UnicodeDecodeError('utf8',b'\xff',0,1,'bad'))['code'],'TEXT_ENCODING_INVALID')
         self.assertEqual(exception_finding(ValueError('unclassified'))['code'],'VALIDATION_FAILED')
-        data=self.path/self.manifest['data_file'];data.unlink();data.symlink_to(ROOT/'data/public'/self.manifest['data_file'])
+
+    def test_symlink_snapshot_is_rejected_when_supported(self):
+        data=self.path/self.manifest['data_file']
+        data.unlink()
+        try:
+            data.symlink_to(ROOT/'data/public'/self.manifest['data_file'])
+        except NotImplementedError:
+            self.skipTest('This platform does not implement symbolic links')
+        except OSError as error:
+            if error.errno not in {errno.EPERM, errno.EACCES, errno.ENOSYS} and getattr(error, 'winerror', None) != 1314:
+                raise
+            self.skipTest('This session lacks symbolic-link capability')
         self.assert_code('SNAPSHOT_SYMLINK',lambda:preflight(self.path))
 
     def test_success_and_review_envelope_exit_codes(self):

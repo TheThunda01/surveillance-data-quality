@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-21",
+  "checks": [
+    {
+      "id": "cdc-nrevss-data",
+      "url": "https://data.cdc.gov/api/views/rgnm-fkqb.json",
+      "access": "official dataset metadata JSON",
+      "finding": "Metadata describe voluntary aggregate NAAT reporting, provisional/revisable data and test rather than patient counts. National/regional count fields are current-week totals. posted is defined as dataset publication date. The bundled older source snapshot is preserved."
+    }
+  ],
+  "limits": [
+    "No new systematic literature search or independent biological validation.",
+    "Availability of an archive record does not establish the correctness of its measurements."
+  ]
+}

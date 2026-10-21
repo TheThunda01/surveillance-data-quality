@@ -116,6 +116,7 @@ The comparison keeps both releases and reports changed counts, percentages, and 
 | [References](docs/references.md) | Complete citations and the role of each source |
 | [Reference audit](docs/reference-audit.json) | Source-by-source verification and access limits |
 | [Editorial and scientific review](docs/review-2026-10-20.md) | Corrections and checks in this review |
+| [Maintenance and source review](docs/review-2026-10-21.md) | Current fixes, source checks, validation, and remaining limits |
 | [Project context](docs/project-context.md) | Background, rationale, and key themes |
 | [Biology and concepts](docs/biology-and-concepts.md) | What respiratory test positivity measures |
 | [Public methods and references](docs/public-data-methods.md) | Calculation choices, limitations, and scientific sources |

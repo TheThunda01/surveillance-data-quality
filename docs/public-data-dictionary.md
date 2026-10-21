@@ -14,7 +14,7 @@
 | `tests` | Reported nucleic acid amplification test (NAAT) count, not unique patients. |
 | `detections` | Reported positive count corresponding to the test pool. |
 | `percent_pos` | Source percentage, checked against $`100\,\frac{\text{detections}}{\text{tests}}`$ with rounding tolerance. |
-| `posted` | Treated by this adapter as a release/update date. The captured metadata identify a calendar field without a complete semantic definition. Never used as an individual reporting delay. |
+| `posted` | Dataset publication date, according to the live CDC field definition checked on 21 October 2026. Used as release metadata, never as an individual specimen or laboratory reporting time. The older bundled metadata capture does not include that definition. |
 | `tests_3wma`, `detections_5wma`, `percent_pos_3wma` | Preserved source columns. Not used or substituted for raw counts in this analysis. |
 
 `*` is suppressed; `.` is unavailable. A blank required value is also unavailable. All are retained as missing information, not filled with zero. The selected frozen rows contain usable unsuppressed counts, but tests exercise both missing-value pathways.
