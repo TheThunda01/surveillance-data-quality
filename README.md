@@ -19,13 +19,13 @@ The public audit verifies the capture contract—the required files and rules fo
 You need Python 3.12 or later. No third-party packages or network access are needed for the bundled analyses.
 
 ```sh
-python src/public_audit.py
-python src/vintage_audit.py
-python src/audit.py
+python src/public_audit.py --output my-results/public
+python src/vintage_audit.py --output my-results/vintages
+python src/audit.py --output my-results/synthetic
 python -m unittest discover -s tests -v
 ```
 
-Run these commands from the repository root. The public analysis verifies the pinned file's SHA-256 checksum, a fingerprint of its bytes, before reading its records. The commands write to three separate output directories.
+Run these commands from the repository root. The public analysis verifies the pinned file's SHA-256 checksum, a fingerprint of its bytes, before reading its records. The commands write to three separate directories under `my-results/`, preserving the committed examples linked below. Omitting `--output` replaces files in the corresponding committed result directory.
 
 | Example | Input | What to read |
 | --- | --- | --- |
@@ -62,6 +62,8 @@ All **123 requested series-week records** were present and usable in the capture
 These are summaries of reported tests. A complete extract does not establish complete laboratory reporting, unique-patient coverage, population prevalence, or clinical validity. Each category keeps its own denominator; counts are never pooled across categories. This is a data-quality worked example, not an outbreak forecast.
 
 ![Weekly test positivity from the pinned CDC extract](results_public/weekly_positivity.svg)
+
+The committed chart is a historical example. A fresh run formats its footer dates as `YYYY-MM-DD` using the snapshot metadata; this [documented maintenance change](docs/review-2026-10-21.md) changes the SVG bytes without changing the plotted values or numerical results.
 
 The chart shows unsmoothed count ratios. The [trailing-window table](results_public/trailing_window_sensitivity.csv) reports what happens after excluding observations newer than 0, 7, 14, or 28 days before the analysis date. Every window uses the same release. This checks sensitivity to the observation window; it does not reconstruct earlier reporting vintages.
 
