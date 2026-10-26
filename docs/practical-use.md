@@ -2,13 +2,19 @@
 
 ## Where this fits
 
-This is a small, inspectable audit before describing a public surveillance extract. The practical output is a record of what was received, which rows can contribute to a count ratio, and what needs review. The Centers for Disease Control and Prevention (CDC) example contains real aggregate data—counts that combine test results; the clinic and report-vintage examples are invented. It does not estimate all infections or reconstruct CDC history from one release.
+Use this audit to record what a surveillance extract contains, which rows can contribute to a count ratio, and what needs review. The Centers for Disease Control and Prevention (CDC) example contains real aggregate counts of test results; the clinic and report-vintage examples are invented. The audit does not estimate all infections or reconstruct CDC history from one release.
 
 ## Input and output contract
 
-`python src/validate_snapshot.py --snapshot data/public` prints JavaScript Object Notation (JSON), a structured text format, to standard output (the terminal output stream) and leaves input files untouched. Contract version 1.0 requires a JSON manifest, a comma-separated values (CSV) file, and captured source metadata (information describing the source). It checks the supported CDC dataset, source-page and endpoint identities, a capture timestamp with a Coordinated Universal Time (UTC) offset, file names, exact byte length and SHA-256 digests, metadata identity/columns, and a national combined-type selection with unique supported categories and ordered Saturday endpoints no later than capture. The CSV must have the twelve documented fields. A parsed `posted` date, treated here as release/update metadata, after the capture date is rejected as inconsistent. Same-day dates are allowed because `posted` has calendar-day precision, not a reliable release time. The row audit then checks scope, counts, duplicates, dates, and percentage consistency.
+`python src/validate_snapshot.py --snapshot data/public` checks a snapshot without changing its files. It prints JavaScript Object Notation (JSON), a structured text format, to standard output (the terminal output stream). Contract version 1.0 requires a JSON manifest, a comma-separated values (CSV) file, and captured source metadata describing the source.
 
-A malformed contract exits with status 2 and a readable error. A valid contract can still contain absent, suppressed, unavailable, or invalid observation slots: these appear in the JSON counts and set `review_required` to true. That flag covers these row conditions only. False does **not** mean no scientific or provenance review is needed. A checksum detects changed bytes relative to the supplied manifest; it does not authenticate a publisher when both files can be edited together.
+The preflight checks the supported CDC dataset, source-page and endpoint identities, a capture timestamp with a Coordinated Universal Time (UTC) offset, file names, exact byte length and SHA-256 digests, and metadata identity and columns. It also requires a national combined-type selection with unique supported categories and ordered Saturday endpoints no later than capture. The CSV must have the twelve documented fields.
+
+The adapter treats `posted` as release/update metadata and rejects a parsed date later than capture. Same-day dates are allowed because `posted` has calendar-day precision, not a reliable release time. The row audit then checks scope, counts, duplicates, dates, and percentage consistency.
+
+If a snapshot violates the contract, the command exits with status 2 and a readable error. A snapshot that meets the contract may still contain absent, suppressed, unavailable, or invalid observation slots. The JSON counts report these conditions and set `review_required` to true. False means only that these row conditions were not found; scientific and provenance review may still be needed.
+
+A checksum detects changed bytes relative to the supplied manifest. It cannot authenticate a publisher because someone could edit the files and manifest together.
 
 Add `--diagnostics-json` to emit the [version 1.0 diagnostic envelope](diagnostics.md), including stable finding codes and locations, on success or failure. Rejected input returns exit 2 and a null summary; a completed audit with review findings returns exit 0 and `status: review`. Zero tests remain an informational finding, separate from missing reports. Argument-parsing errors retain argparse's text output.
 

@@ -4,9 +4,9 @@ The [practical-use contract](practical-use.md) documents a read-only preflight f
 
 ## The question
 
-Can a small, reproducible audit make the observation window, available reports, and test denominators visible before anyone interprets a surveillance curve?
+This audit makes the observation window, available reports, and test denominators explicit before interpreting a surveillance curve.
 
-There are two complementary analyses here. The public-data analysis checks one downloaded release of CDC aggregate laboratory results. The report-vintage analysis checks what was available by different dates in an explicitly synthetic version history. The second does not manufacture historical versions of the first.
+Two analyses address different information sources. The public-data analysis checks one downloaded release of CDC aggregate laboratory results. The report-vintage analysis selects reports available by different dates in an explicitly synthetic version history. It does not reconstruct CDC history.
 
 ## Real public-data source
 
@@ -16,7 +16,9 @@ The raw API response is retained without editing. The manifest records the exact
 
 ## Audit rules and denominators
 
-One expected record is one selected series-week. The calendar comes from the declared date window, not from whichever rows happened to be returned. Counts must be nonnegative integers, detections cannot exceed tests, and duplicate series-week keys are quarantined. `*` remains suppressed and `.` remains unavailable; neither is treated as zero. Percentages computed from counts must agree with the source percentage within 0.005 percentage points, allowing two-decimal rounding. The implementation adds a 0.000000000001-point numerical margin to that boundary. A percentage point is an absolute difference between percentages; 10% to 12% is two percentage points. No outlier cutoff removes biologically plausible values.
+One expected record is one selected series-week. The declared date window defines the calendar, independently of which rows were returned. Counts must be nonnegative integers, detections cannot exceed tests, and the audit quarantines duplicate series-week keys. `*` remains suppressed and `.` remains unavailable; neither becomes zero.
+
+Percentages computed from counts must agree with the source percentage within 0.005 percentage points, allowing two-decimal rounding. The implementation adds a 0.000000000001-point numerical margin to that boundary. A percentage point is an absolute difference between percentages; 10% to 12% is two percentage points. No outlier cutoff removes biologically plausible values.
 
 Coverage is $`\frac{\text{usable series-weeks}}{\text{expected series-weeks}}`$ **within this extract**. It is not the fraction of all laboratories reporting, patients tested, infections detected, or the population represented. A complete-looking national row may aggregate incomplete or selectively submitted laboratory data. CDC describes voluntary laboratory participation, and [Silk et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/41712508/) discuss variation in participation and representativeness. The aggregate file cannot establish unique-patient counts or whether repeated testing occurred. Consequently, positivity is a proportion of reported tests, not population prevalence. The article describes a different surveillance period; its results are not reproduced here.
 
@@ -30,7 +32,9 @@ Every window uses the same downloaded release. Excluding recent observation week
 
 ## Consecutive-week denominator changes
 
-A review diagnostic compares test counts only when consecutive calendar weeks are usable in the same series and the previous count is positive. The signed relative change is $`\frac{\text{current tests}-\text{previous tests}}{\text{previous tests}}`$. Its absolute value is compared strictly with a configurable threshold, default 0.5. This is a transparent demonstration setting, not a validated universal standard. It does not remove records, alter their validity status, estimate incidence, or explain why a denominator changed. Missing or suppressed weeks are not bridged, and zero previous denominators yield an undefined ratio. The output reports both counts so a flagged change can be investigated in context.
+The denominator diagnostic compares test counts in consecutive usable calendar weeks within the same series. The previous count must be positive. The signed relative change is $`\frac{\text{current tests}-\text{previous tests}}{\text{previous tests}}`$. The diagnostic flags an absolute value strictly greater than a configurable threshold, default 0.5. It reports both counts so readers can investigate a flagged change.
+
+The threshold is a demonstration setting, not a validated universal standard. Flags do not remove records, alter their validity status, estimate incidence, or explain why a denominator changed. The diagnostic does not compare across missing or suppressed weeks, and zero previous denominators leave the ratio undefined.
 
 ## Genuine as-of selection and revision comparison
 

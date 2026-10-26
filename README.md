@@ -1,18 +1,22 @@
 # Surveillance data quality
 
-A reproducible Python project using SQLite, a database engine, to ask a practical question: **what information do we actually have before interpreting a surveillance curve?**
+This project checks surveillance counts, denominators, missing reports, and revisions before interpreting a curve. It uses Python and the SQLite database engine to make those checks reproducible.
 
 ## Why this project
 
 **Start here:** [Background, rationale, and key themes](docs/project-context.md). Then read [the biology and concepts](docs/biology-and-concepts.md) for an explanation of the measurements.
 
-The main worked example uses a pinned (fixed and saved) **real aggregate dataset from the Centers for Disease Control and Prevention (CDC)**. It comes from the National Respiratory and Enteric Virus Surveillance System (NREVSS). Aggregate data combine many test results into counts. It checks weekly test counts and denominators, quantifies coverage of the requested extraction window, and shows how summaries change when recent weeks are left out. A separate version-history engine demonstrates how to reconstruct reports available by a given date without letting later revisions leak backward.
+The main example checks a saved **real aggregate dataset from the Centers for Disease Control and Prevention (CDC)** National Respiratory and Enteric Virus Surveillance System (NREVSS). These aggregate data combine test results into weekly counts. The analysis checks counts and denominators, measures coverage within the requested window, and shows how leaving out recent weeks changes the summaries.
+
+A separate tool uses synthetic report histories to reconstruct which reports were available by a given date. It excludes later revisions that an analyst could not have known at that time.
 
 The original synthetic audit remains as a small, easy-to-inspect test case. The real data and synthetic examples are labeled separately throughout.
 
 ## What it does
 
-The public audit verifies the capture contract—the required files and rules for a saved download—preserves absent and suppressed observations, checks count-derived percentages, and compares consecutive test denominators (the counts divided into positive results). Separate synthetic examples exercise Structured Query Language (SQL) calendar joins and issue-date revision handling. A join matches records between tables. No epidemiological model is fitted. See the [glossary](docs/glossary.md) for the scientific and computing vocabulary used throughout this project.
+The public audit verifies that a saved download meets the required file and schema rules, keeps absent and suppressed observations distinct, checks percentages against counts, and compares test counts between consecutive weeks. Those test counts are the denominators of positivity percentages.
+
+The synthetic calendar audit uses Structured Query Language (SQL) to match records between tables. The report-history example selects revisions by issue date. The project fits no epidemiological model. See the [glossary](docs/glossary.md) for scientific and computing terms.
 
 ## Quick start
 
@@ -33,7 +37,7 @@ Run these commands from the repository root. The public analysis verifies the pi
 | As-of report histories | Explicitly synthetic issue dates and revisions | [Vintage analysis](results_vintages/report.md) |
 | Basic SQL audit | Explicitly synthetic clinic reports with planted errors | [Basic audit](results/report.md) |
 
-The preflight, a check performed before analysis, prints an aggregate contract check without writing files:
+Run the preflight to check the saved download before analysis. It prints an aggregate summary without writing files:
 
 ```sh
 python src/validate_snapshot.py
@@ -69,9 +73,9 @@ The chart shows unsmoothed count ratios. The [trailing-window table](results_pub
 
 ## Practical use and limitations
 
-Use this as a reproducible extraction and review exercise. The [practical guide](docs/practical-use.md) distinguishes automated checks from source and scientific review.
+Use this project to practice extracting and reviewing surveillance data. The [practical guide](docs/practical-use.md) separates automated checks from the source and scientific questions you must assess.
 
-In diagnostic mode, rejected input exits 2; a completed audit with row findings exits 0 and reports `status: review`. A caller must inspect status and findings, not treat exit 0 as scientific approval.
+Inspect both status and findings in diagnostic mode. Rejected input exits 2; a completed audit with row findings exits 0 and reports `status: review`. Exit 0 alone is not scientific approval.
 
 ### Inspect changing test denominators
 
@@ -81,7 +85,9 @@ The public audit reports consecutive-week test-count ratios in each category. By
 python src/public_audit.py --denominator-change-threshold 0.2 --output results_denominator_20pct
 ```
 
-The [week-level diagnostic](results_public/denominator_changes.csv) keeps counts, ratios, signed relative changes, and reasons a comparison was unavailable. Missing weeks are not bridged, and a zero previous denominator produces an undefined ratio. In the pinned extract, all 120 consecutive pairs are evaluable and none crosses the default 50% setting; that does not establish stable testing practices or unbiased reporting.
+The [week-level diagnostic](results_public/denominator_changes.csv) reports counts, ratios, signed relative changes, and reasons a comparison was unavailable. It does not compare across a missing week; a zero previous denominator leaves the ratio undefined.
+
+All 120 consecutive pairs in the pinned extract are evaluable, and none crosses the default 50% setting. This result does not establish stable testing practices or unbiased reporting.
 
 See [related tools and design choices](docs/tools-and-design-notes.md) for a practical comparison with Carnegie Mellon Delphi's version-aware epidemiological data infrastructure.
 
@@ -107,7 +113,9 @@ python src/public_audit.py --snapshot snapshots/new_capture --output results_new
 python src/compare_snapshots.py --old data/public --new snapshots/new_capture --output results_comparison
 ```
 
-The comparison keeps both releases and reports changed counts, percentages, and availability statuses. We currently include one real capture, so no historical revision rate is claimed. This adapter treats `posted` as release/update-date metadata. The captured metadata do not establish a specimen, testing, or individual laboratory submission time; see the [timing assumptions](docs/assumptions.md).
+The comparison preserves both releases and reports changed counts, percentages, and availability statuses. Only one real capture is included, so the project cannot estimate a historical revision rate.
+
+The adapter treats `posted` as release/update-date metadata. The captured metadata do not establish a specimen, testing, or individual laboratory submission time; see the [timing assumptions](docs/assumptions.md).
 
 ## Documentation
 

@@ -8,19 +8,23 @@ Respiratory surveillance brings together observations about illness, testing, an
 
 A nucleic acid amplification test, or NAAT, detects genetic material associated with a target organism; nucleic acids are molecules such as DNA and RNA that carry genetic information. Polymerase chain reaction, or PCR, is one type of NAAT. These are different from antigen tests, which detect viral components such as proteins. The dataset identifies its test category as NAAT, so the analysis keeps that category rather than treating all testing technologies as interchangeable ([CDC, 2025b](https://www.cdc.gov/respiratory-viruses/prevention/testing.html)).
 
-The repository receives aggregate counts of results, not laboratory measurements for an individual sample. It therefore cannot assess a particular assay's sensitivity (ability to detect a target when present), specificity (ability to give a negative result when the target is absent), sample quality, or a person's clinical condition. An assay is a measurement procedure. A “positive” in this analysis means a result counted as positive by the contributing testing system. It is not a measurement of disease severity, nor does this table independently establish which organism caused someone's symptoms.
+These aggregate counts cannot assess individual samples or patients. They contain no individual laboratory measurements, so the analysis cannot assess an assay's sensitivity (detecting a target when present), specificity (giving a negative result when the target is absent), sample quality, or a person's clinical condition. An assay is a measurement procedure.
+
+A “positive” here is a result counted as positive by the contributing testing system. It does not measure disease severity or independently establish which organism caused someone's symptoms.
 
 ## Why these three categories were chosen
 
-The worked example includes Adenovirus, human metapneumovirus (HMPV), and parainfluenza viruses (PIV). These are source categories already supplied by NREVSS. The selected national “Combined Type” rows provide test counts, positive detections, and percentages for a manageable common window. Their usefulness here is methodological: the counts let a reader check the percentages and inspect changing denominators. They were not selected because they represent every respiratory infection or because one is expected to predict another.
+The example uses three NREVSS categories—Adenovirus, human metapneumovirus (HMPV), and parainfluenza viruses (PIV)—because their counts allow readers to check percentages and compare denominators. The selected national “Combined Type” rows provide test counts, positive detections, and percentages for a manageable common window. The selection does not imply that these categories represent every respiratory infection or predict one another.
 
 The categories are also not identical biological units. CDC describes PIV types 1–4 in NREVSS ([CDC, 2025a](https://www.cdc.gov/nrevss/php/dashboard/index.html)). This extract labels both PIV and HMPV as `Combined Type` and provides no separate type-specific counts. The project preserves those rows and does not infer behavior for a particular type.
 
 ## The denominator determines the question
 
-Here, weekly positivity is positive detections divided by tests, multiplied by 100. It answers: “What percentage of the reported tests in this category were positive?” It does not answer: “What percentage of people in the population were infected?” These aggregate records do not identify unique patients, so the project cannot rule out repeated testing or count people. Infections in people who were never tested are outside the table. Population prevalence means the proportion of people with a condition in a defined population and period; it requires a different denominator.
+Weekly positivity describes reported tests, not the proportion of infected people. It is positive detections divided by tests, multiplied by 100. The aggregate records do not identify unique patients, so the project cannot count people or rule out repeated testing. Infections in people who were never tested are outside the table. Population prevalence—the proportion of people with a condition in a defined population and period—requires a different denominator.
 
-Consider a purely arithmetic example: 10 positives among 100 tests is 10%; 10 positives among 50 tests is 20%. The numerator did not change. This does not tell us why testing decreased or what happened to infections. It shows why both counts belong beside the percentage. Similarly, percentages across weeks are pooled using summed numerators and denominators, not by giving a small testing week the same weight as a large one. Separate viral categories remain separate because their tested samples need not represent the same people.
+For example, 10 positives among 100 tests is 10%; 10 positives among 50 tests is 20%. The numerator did not change. This arithmetic shows why both counts belong beside the percentage, but it does not explain why testing decreased or what happened to infections.
+
+The analysis pools weeks by summing numerators and denominators, so a week with fewer tests contributes less than one with more tests. It keeps viral categories separate because their tested samples need not represent the same people.
 
 ## Observation time and information availability differ
 
@@ -36,7 +40,7 @@ An apparent rise or fall is therefore a starting point for checking definitions,
 
 ## How the denominator diagnostic helps
 
-The added diagnostic compares test counts in consecutive usable weeks within each category. A configurable flag marks absolute relative changes greater than 50% by default. That number is an illustrative review setting, not a biological boundary or validated universal threshold. Flags do not remove records or change the audit's validity decisions.
+The denominator diagnostic flags changes in test counts for review. It compares consecutive usable weeks within each category and, by default, flags absolute relative changes greater than 50%. This configurable setting is illustrative, not a biological boundary or validated universal threshold. Flags do not remove records or change the audit's validity decisions.
 
 A zero previous denominator leaves the ratio undefined. A missing or suppressed week breaks the comparison; the program does not bridge that gap. No flags in a dataset would mean only that this particular check found no changes above the chosen setting. It would not establish stable participation or unbiased surveillance.
 

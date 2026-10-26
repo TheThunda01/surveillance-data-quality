@@ -2,9 +2,9 @@
 
 ## The background
 
-A weekly surveillance table can look ready for analysis even when reports are missing, duplicated, revised, or built from different denominators. Before interpreting a curve, it helps to ask two questions: **what does each number represent, and when was that number available?**
+Before interpreting a surveillance curve, establish **what each number represents and when it was available**. A weekly table may contain missing, duplicated, or revised reports, or combine different denominators.
 
-This project brings those questions into a small, reproducible workflow. Its real-data example uses public national laboratory aggregates from the [Centers for Disease Control and Prevention (CDC) National Respiratory and Enteric Virus Surveillance System (NREVSS)](https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb). A separate synthetic example makes reporting delays and revisions easy to inspect without inventing a history for the CDC data.
+This project checks those details in a small, reproducible workflow. Its real-data example uses public national laboratory aggregates from the [Centers for Disease Control and Prevention (CDC) National Respiratory and Enteric Virus Surveillance System (NREVSS)](https://data.cdc.gov/Laboratory-Surveillance/Percent-positivity-of-respiratory-viruses-by-nucle/rgnm-fkqb). A separate synthetic example makes reporting delays and revisions easy to inspect without inventing a history for the CDC data.
 
 ## What it does
 
@@ -14,7 +14,7 @@ The version-history tool answers a different question: which reports could an an
 
 ## Why it matters
 
-The benefit is a more inspectable analysis: readers can see the source, exclusions, denominators, and timing assumptions before deciding what a result supports. [Mellor et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/42832413/) explain how reporting delays and revisions can make retrospective surveillance analyses look more useful than their real-time counterparts. That motivates these checks; it does not establish that this software is validated for operational surveillance.
+Readers can inspect the source, exclusions, denominators, and timing assumptions before deciding what a result supports. [Mellor et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/42832413/) explain how reporting delays and revisions can make retrospective surveillance analyses look more useful than their real-time counterparts. Their work motivates these checks; it does not validate this software for operational surveillance.
 
 The respiratory-surveillance report by [Silk et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/41712508/) also discusses NREVSS participation and representativeness limits. Complete rows in this extract do not mean complete coverage of laboratories, patients, or infections. Test positivity is not population prevalence.
 
