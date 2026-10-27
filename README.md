@@ -4,6 +4,8 @@ This project checks surveillance counts, denominators, missing reports, and revi
 
 ## Why this project
 
+In [From biological measurements to better experiments](https://github.com/TheThunda01/TheThunda01/blob/main/PROJECT_GUIDE.md), this is the public-health starting point: inspect what a surveillance curve represents before asking a model to explain it. Its role is to make denominators, coverage, and reporting time visible.
+
 **Start here:** [Background, rationale, and key themes](docs/project-context.md). Then read [the biology and concepts](docs/biology-and-concepts.md) for an explanation of the measurements.
 
 The main example checks a saved **real aggregate dataset from the Centers for Disease Control and Prevention (CDC)** National Respiratory and Enteric Virus Surveillance System (NREVSS). These aggregate data combine test results into weekly counts. The analysis checks counts and denominators, measures coverage within the requested window, and shows how leaving out recent weeks changes the summaries.
