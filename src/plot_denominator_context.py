@@ -10,6 +10,50 @@ import json
 import math
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_NAMES = ("denominator-context.svg", "denominator-context.png", "provenance.json")
+SOURCE_NAMES = ("weekly_audit.csv", "trailing_window_sensitivity.csv")
+
+
+def validate_output(directory: Path, output: Path):
+    """Allow regeneration of our bundle without replacing source or unrelated files."""
+    absolute = output.absolute()
+    for part in (absolute, *absolute.parents):
+        if part.is_symlink() or getattr(part, "is_junction", lambda: False)():
+            raise ValueError("Output paths must not traverse links or junctions")
+    target, source = output.resolve(), directory.resolve()
+    if target.is_relative_to(source) or source.is_relative_to(target):
+        raise ValueError("Output must be separate from the input directory")
+    for name in ("data", "results", "results_public", "results_vintages", "examples", ".git"):
+        if target.is_relative_to(ROOT / name):
+            raise ValueError("Output cannot replace source or historical-result files")
+    if target.exists() and not target.is_dir():
+        raise ValueError("Output must be a directory")
+    existing = []
+    for name in OUTPUT_NAMES:
+        path = target / name
+        if path.is_symlink() or getattr(path, "is_junction", lambda: False)():
+            raise ValueError("Generated output files must not be links")
+        if path.exists():
+            if not path.is_file() or path.stat().st_nlink != 1:
+                raise ValueError("Generated outputs must be ordinary unlinked files")
+            existing.append(name)
+    if existing:
+        provenance = target / "provenance.json"
+        if not provenance.is_file():
+            raise ValueError("Existing files are not a recognized generated bundle")
+        try:
+            record = json.loads(provenance.read_text(encoding="utf-8"))
+            recognized = (record.get("schema_version") == 1
+                and record.get("scope") == "Saved count-derived summaries; no new download or inference."
+                and {item["name"] for item in record["sources"]} == set(SOURCE_NAMES)
+                and isinstance(record.get("series"), dict))
+        except (ValueError, TypeError, KeyError, AttributeError):
+            recognized = False
+        if not recognized:
+            raise ValueError("Existing provenance does not belong to this figure bundle")
+    return target
+
 
 def table(path):
     with path.open(encoding="utf-8", newline="") as stream:
@@ -88,6 +132,7 @@ def load_context(directory: Path):
 
 
 def render(directory: Path, output: Path):
+    output = validate_output(directory, output)
     weekly, windows = load_context(directory)
     import matplotlib
     matplotlib.use("Agg")

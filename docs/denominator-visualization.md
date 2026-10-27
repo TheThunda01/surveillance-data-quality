@@ -16,7 +16,7 @@ python src/plot_denominator_context.py --input-dir results_public --output-dir d
 python -m unittest discover -s tests -v
 ```
 
-The plot command writes SVG, PNG, and `provenance.json` with source hashes and the plotting version. It replaces those three generated files in the selected directory and leaves the captured input and historical reports unchanged. The SVG can be edited in Inkscape; regenerate its numerical content from the script.
+The plot command writes SVG, PNG, and `provenance.json` with source hashes and the plotting version. It can replace those three files in a recognized generated bundle, including the documented destination above. It rejects input directories, repository source/result locations, unrelated provenance files, linked output files, and paths through links or junctions before plotting. The captured input and historical reports remain unchanged. The SVG can be edited in Inkscape; regenerate its numerical content from the script.
 
 Before plotting, the script checks unique weekly identities, explicit calendar slots, recognized availability states, valid usable counts, and every sensitivity table count, ratio, and percentage-point change against the weekly audit. Exclusion-day labels and their cutoff dates must imply one common analysis date, and a zero-day baseline must cover the full weekly table. Unusable observations remain gaps, and undefined ratios remain blank; neither becomes a zero. These consistency checks cannot authenticate the source or establish epidemiological validity.
 

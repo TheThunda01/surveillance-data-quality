@@ -1,4 +1,6 @@
 import csv
+import json
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -7,7 +9,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from plot_denominator_context import load_context
+from plot_denominator_context import load_context, render, validate_output
 
 
 class ContextTests(unittest.TestCase):
@@ -82,6 +84,44 @@ class ContextTests(unittest.TestCase):
         _, windows = load_context(self.path)
         self.assertIsNone(windows["Example"][0]["delta_pp"])
         self.assertIsNone(windows["Example"][0]["retained"])
+
+    def test_input_and_ancestor_outputs_preserve_provenance(self):
+        marker = self.path / "provenance.json"
+        marker.write_bytes(b'{"source": "keep original bytes"}')
+        original = marker.read_bytes()
+        for output in (self.path, self.path / "nested", self.path.parent):
+            with self.assertRaisesRegex(ValueError, "separate"):
+                render(self.path, output)
+        self.assertEqual(marker.read_bytes(), original)
+
+    def test_unrelated_provenance_is_not_replaced(self):
+        with tempfile.TemporaryDirectory() as destination:
+            output = Path(destination)
+            marker = output / "provenance.json"
+            marker.write_bytes(b'{"source": "another workflow"}')
+            with self.assertRaisesRegex(ValueError, "does not belong"):
+                render(self.path, output)
+            self.assertEqual(marker.read_bytes(), b'{"source": "another workflow"}')
+            self.assertFalse((output / "denominator-context.svg").exists())
+
+    def test_documented_generated_bundle_can_be_regenerated(self):
+        output = ROOT / "docs/figures/denominator-context"
+        self.assertEqual(validate_output(self.path, output), output.resolve())
+
+    def test_output_hardlink_preserves_original_file(self):
+        with tempfile.TemporaryDirectory() as destination:
+            output = Path(destination)
+            source = self.path / "keep.json"
+            source.write_bytes(b'keep these bytes')
+            os.link(source, output / "provenance.json")
+            with self.assertRaisesRegex(ValueError, "unlinked"):
+                render(self.path, output)
+            self.assertEqual(source.read_bytes(), b'keep these bytes')
+
+    def test_repository_source_destinations_are_rejected(self):
+        for name in ("data/public", "results_public", "examples", ".git"):
+            with self.assertRaisesRegex(ValueError, "source or historical"):
+                render(self.path, ROOT / name)
 
 
 if __name__ == "__main__":
