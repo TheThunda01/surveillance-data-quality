@@ -1,3 +1,6 @@
 *.csv -text
 *.tsv -text
 *.png -text
+# These captured JSON bytes are covered by the public snapshot fingerprint.
+data/public/*.json -text
+docs/figures/**/*.svg -whitespace linguist-generated

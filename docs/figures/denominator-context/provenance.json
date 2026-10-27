@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "matplotlib_version": "3.11.2",
+  "sources": [
+    {
+      "name": "weekly_audit.csv",
+      "sha256": "cb5b5e95133db38c04b317fd9028c0836cf4830fa6756de9c4887e56bf40ab7c"
+    },
+    {
+      "name": "trailing_window_sensitivity.csv",
+      "sha256": "9244e141d418492b043ca346f321be6880ecdb1bd4b0e60c57fa84e7dd3dcada"
+    }
+  ],
+  "series": {
+    "Adenovirus": {
+      "weeks": 41,
+      "usable_weeks": 41,
+      "windows": 4
+    },
+    "HMPV": {
+      "weeks": 41,
+      "usable_weeks": 41,
+      "windows": 4
+    },
+    "PIV": {
+      "weeks": 41,
+      "usable_weeks": 41,
+      "windows": 4
+    }
+  },
+  "scope": "Saved count-derived summaries; no new download or inference."
+}
