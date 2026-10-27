@@ -1,5 +1,9 @@
 # Why this project exists
 
+## Where this fits
+
+This study connects the portfolio’s public-health background to its measurement-quality question. [Pasilla expression QC](https://github.com/TheThunda01/pasilla-expression-qc) examines the same habit at a different scale, through sample labels and normalization. These studies use separate datasets; their connection is a reading route rather than an implemented data handoff. Return to the [portfolio guide](https://github.com/TheThunda01/TheThunda01/blob/main/PROJECT_GUIDE.md).
+
 ## The background
 
 Before interpreting a surveillance curve, establish **what each number represents and when it was available**. A weekly table may contain missing, duplicated, or revised reports, or combine different denominators.
