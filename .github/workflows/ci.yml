@@ -16,3 +16,14 @@ jobs:
       - run: python src/vintage_audit.py --output /tmp/vintage-results
       - run: python src/validate_snapshot.py
       - run: python src/validate_snapshot.py --diagnostics-json
+  windows-checkout:
+    runs-on: windows-latest
+    steps:
+      - name: Exercise the Windows line-ending setting
+        run: git config --global core.autocrlf true
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python src/validate_snapshot.py --diagnostics-json
+      - run: python -m unittest discover -s tests -v

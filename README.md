@@ -55,6 +55,8 @@ The [diagnostic contract and stable codes](docs/diagnostics.md) separate malform
 
 ## Example results
 
+The [denominator and window-sensitivity view](docs/denominator-visualization.md) shows weekly test counts beside the change in pooled positivity when recent weeks are excluded. It reconciles every plotted window to the saved counts and preserves each category's denominator.
+
 All **123 requested series-week records** were present and usable in the captured file: 41 weeks for each of three categories. Their count-derived percentages agreed with the source's displayed percentages within two-decimal rounding.
 
 | CDC series | Positive tests / tests in the selected window | Pooled positivity |
