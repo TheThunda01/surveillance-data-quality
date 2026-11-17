@@ -1,5 +1,7 @@
 # Put the denominator beside the comparison
 
+The shaded dates on the weekly charts show which observations the longest exclusion window drops. For the saved release, the 28-day cutoff drops three observed weeks. HMPV pooled positivity then rises by 0.187 percentage points, while 92.9% of tests remain in the denominator.
+
 The existing weekly positivity chart is supplemented by a view of **reported test counts** and the **change in pooled positivity after excluding recent weeks**. Each category retains its own denominator. The right-hand panels annotate how much of that category's test denominator remains in each window.
 
 ![Reported denominators and observation-window sensitivity](figures/denominator-context/denominator-context.svg)
