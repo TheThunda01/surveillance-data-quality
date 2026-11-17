@@ -35,7 +35,9 @@ class ContextTests(unittest.TestCase):
         weeks, windows = load_context(self.path)
         self.assertEqual(sum(map(len, weeks.values())), 123)
         self.assertEqual(sum(map(len, windows.values())), 12)
-        self.assertGreater(windows["HMPV"][-1]["delta_pp"], .18)
+        longest = windows["HMPV"][-1]
+        self.assertAlmostEqual(longest["delta_pp"], .186988119)
+        self.assertEqual(sum(r["week"] > longest["cutoff"] for r in weeks["HMPV"]), 3)
 
     def test_duplicate_week_rejected(self):
         self.change("weekly_audit.csv", lambda rows: rows.append(rows[0].copy()))

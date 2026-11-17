@@ -123,7 +123,7 @@ def load_context(directory: Path):
                     raise ValueError("Undefined denominator must remain blank")
             elif not raw[field] or not math.isfinite(float(raw[field])) or not math.isclose(float(raw[field]), expected, abs_tol=1e-9, rel_tol=0):
                 raise ValueError(f"Window {field} disagrees with count-derived value")
-        windows[name].append({"days": days, "delta_pp": delta, "retained": retained})
+        windows[name].append({"days": days, "cutoff": cutoff, "delta_pp": delta, "retained": retained})
     if set(windows) != set(weekly):
         raise ValueError("Every series needs a sensitivity table")
     for values in windows.values():
@@ -150,6 +150,12 @@ def render(directory: Path, output: Path):
     for index, (name, rows) in enumerate(weekly.items()):
         left, right = axes[index]
         color = palette[index % len(palette)]
+        points = windows[name]
+        longest_window = points[-1]
+        excluded_weeks = sum(r["week"] > longest_window["cutoff"] for r in rows)
+        if excluded_weeks:
+            left.axvspan(max(rows[0]["week"], longest_window["cutoff"]), rows[-1]["week"],
+                         color="#ecd59b", alpha=.55, zorder=0)
         left.plot([r["week"] for r in rows], [r["tests"] for r in rows], color=color, linewidth=1.8)
         unavailable = sum(r["status"] != "usable" for r in rows)
         left.set(title=f"{name}: weekly test denominator", ylabel="Reported tests", ylim=(0, max(1, max_tests * 1.06)))
@@ -158,12 +164,19 @@ def render(directory: Path, output: Path):
         left.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}"))
         if unavailable:
             left.text(.02, .05, f"{unavailable} unusable slots shown as gaps", transform=left.transAxes)
-        points = windows[name]
         right.plot([p["days"] for p in points], [p["delta_pp"] for p in points], "o-", color=color)
         right.axhline(0, color="#8b949b", linewidth=.8)
-        right.set(title="Window change; labels show % of tests retained", ylabel="Positivity change (percentage points)",
+        right.set(title="Pooled positivity change • labels show tests retained", ylabel="Positivity change (percentage points)",
                   xlabel="Exclude weeks newer than this many days", xticks=[p["days"] for p in points], ylim=shared_limits)
         right.margins(x=.1, y=.35)
+        if excluded_weeks:
+            left.text(.98, .07, f"{longest_window['days']}-day cutoff excludes the shaded weeks ({excluded_weeks})",
+                      transform=left.transAxes, ha="right", fontsize=9,
+                      bbox=dict(facecolor="white", edgecolor="none", alpha=.92, pad=2))
+        if longest_window["delta_pp"] is not None:
+            right.text(.02, .93, f"{longest_window['days']}-day change   {longest_window['delta_pp']:+.3f} pp",
+                       transform=right.transAxes, ha="left", va="top", fontsize=9,
+                       bbox=dict(facecolor="white", edgecolor="none", alpha=.92, pad=2))
         for point in points:
             if point["delta_pp"] is not None:
                 right.annotate(f'{100 * point["retained"]:.1f}%',

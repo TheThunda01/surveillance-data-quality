@@ -93,6 +93,24 @@ class PublicDataTests(unittest.TestCase):
         self.assertEqual(result['changed_slots'],1)
         self.assertEqual(result['slots'][0]['detection_delta'],-1)
 
+    def test_posting_date_is_compared_separately_from_counts_and_availability(self):
+        meta = {'dataset_id': 'example', 'selection': SELECTION,
+                'retrieved_at_utc': '2026-10-20T00:00:00+00:00', 'sha256': 'old'}
+        new = {**meta, 'retrieved_at_utc': '2026-10-21T00:00:00+00:00', 'sha256': 'new'}
+        repost = public_row(posted='2026-10-17T00:00:00.000')
+        report = compare([public_row()], meta, [repost], new)
+        self.assertEqual((report['changed_slots'], report['posted_date_only_slots']), (0, 1))
+        slot = report['slots'][0]
+        self.assertEqual((slot['old_posted_date'], slot['new_posted_date']), ('2026-10-16', '2026-10-17'))
+        self.assertIs(slot['posted_date_changed'], True)
+        self.assertEqual((slot['test_delta'], slot['detection_delta']), (0, 0))
+        revised = compare([public_row()], meta, [{**repost, 'tests': '200', 'percent_pos': '2.50'}], new)
+        self.assertEqual((revised['changed_slots'], revised['posted_date_only_slots']), (1, 0))
+        self.assertIs(revised['slots'][0]['posted_date_changed'], True)
+        arrival = compare([], meta, [repost], new)
+        self.assertEqual((arrival['changed_slots'], arrival['posted_date_only_slots']), (1, 0))
+        self.assertIsNone(arrival['slots'][0]['posted_date_changed'])
+
     def test_comparison_rejects_unequal_selection(self):
         meta={'dataset_id':'rgnm-fkqb','selection':SELECTION,'retrieved_at_utc':'2026-10-20T00:00:00+00:00','sha256':'old'}
         with self.assertRaises(ValueError):compare([],meta,[],{**meta,'dataset_id':'other'})
