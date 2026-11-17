@@ -6,28 +6,41 @@ from pathlib import Path
 from public_audit import audit_snapshot, load_snapshot, write_csv
 
 
-def compare(old_rows,old_manifest,new_rows,new_manifest):
-    if old_manifest['dataset_id']!=new_manifest['dataset_id'] or old_manifest['selection']!=new_manifest['selection']:
+def compare(old_rows, old_manifest, new_rows, new_manifest):
+    if (old_manifest['dataset_id'] != new_manifest['dataset_id']
+            or old_manifest['selection'] != new_manifest['selection']):
         raise ValueError('both releases must describe the same dataset and selection')
-    if datetime.fromisoformat(new_manifest['retrieved_at_utc'])<datetime.fromisoformat(old_manifest['retrieved_at_utc']):
+    if datetime.fromisoformat(new_manifest['retrieved_at_utc']) < datetime.fromisoformat(old_manifest['retrieved_at_utc']):
         raise ValueError('new release was retrieved earlier than old release')
-    old=audit_snapshot(old_rows,old_manifest['selection']);new=audit_snapshot(new_rows,new_manifest['selection'])
-    key=lambda r:(r['pathogen'],r['week_end'])
-    old_lookup={key(r):r for r in old['slots']}
-    comparisons=[]
+
+    old = audit_snapshot(old_rows, old_manifest['selection'])
+    new = audit_snapshot(new_rows, new_manifest['selection'])
+    old_lookup = {(row['pathogen'], row['week_end']): row for row in old['slots']}
+    fields = ['status', 'tests', 'detections', 'reported_percent_positive']
+    comparisons = []
     for row in new['slots']:
-        before=old_lookup[key(row)]
-        fields=['status','tests','detections','reported_percent_positive']
-        changed=[f for f in fields if before[f]!=row[f]]
-        numeric=before['status']=='usable' and row['status']=='usable'
-        comparisons.append({'pathogen':row['pathogen'],'week_end':row['week_end'],'changed_fields':';'.join(changed),
-                            'old_status':before['status'],'new_status':row['status'],
-                            'old_tests':before['tests'],'new_tests':row['tests'],
-                            'test_delta':row['tests']-before['tests'] if numeric else None,
-                            'detection_delta':row['detections']-before['detections'] if numeric else None})
-    return {'old_sha256':old_manifest['sha256'],'new_sha256':new_manifest['sha256'],
-            'old_retrieved_at_utc':old_manifest['retrieved_at_utc'],'new_retrieved_at_utc':new_manifest['retrieved_at_utc'],
-            'changed_slots':sum(bool(r['changed_fields']) for r in comparisons),'slots':comparisons}
+        before = old_lookup[row['pathogen'], row['week_end']]
+        changed = [field for field in fields if before[field] != row[field]]
+        numeric = before['status'] == row['status'] == 'usable'
+        old_posted, new_posted = before['posted_date'], row['posted_date']
+        date_changed = old_posted != new_posted if old_posted and new_posted else None
+        comparisons.append({
+            'pathogen': row['pathogen'], 'week_end': row['week_end'], 'changed_fields': ';'.join(changed),
+            'old_status': before['status'], 'new_status': row['status'],
+            'old_tests': before['tests'], 'new_tests': row['tests'],
+            'test_delta': row['tests'] - before['tests'] if numeric else None,
+            'detection_delta': row['detections'] - before['detections'] if numeric else None,
+            'old_posted_date': old_posted, 'new_posted_date': new_posted,
+            'posted_date_changed': date_changed,
+        })
+    return {
+        'old_sha256': old_manifest['sha256'], 'new_sha256': new_manifest['sha256'],
+        'old_retrieved_at_utc': old_manifest['retrieved_at_utc'], 'new_retrieved_at_utc': new_manifest['retrieved_at_utc'],
+        'changed_slots': sum(bool(slot['changed_fields']) for slot in comparisons),
+        'posted_date_only_slots': sum(slot['posted_date_changed'] is True and not slot['changed_fields']
+                                      for slot in comparisons),
+        'slots': comparisons,
+    }
 
 
 def main():

@@ -42,7 +42,7 @@ The threshold is a demonstration setting, not a validated universal standard. Fl
 
 A configurable grace period defines when an expected slot is due. Before that deadline it is `not_due`; after it, absence is `not_yet_available`. These are reporting statuses, not zero observations. The shipped version history is wholly synthetic and does not describe CDC reporting performance.
 
-For real future releases, `compare_snapshots.py` compares two pinned, verified extracts with the same selection and ordered capture times. It flags changed values, status changes, and signed count differences. It cannot identify changes that happened between the captures. We currently ship only one real release and claim no measured historical revision rate.
+For real future releases, `compare_snapshots.py` compares two pinned, verified extracts with the same selection and ordered capture times. It records both posting dates for each week and flags changes where both dates are available. The summary counts weeks with changed values or status in `changed_slots` and weeks with a posting-date change alone in `posted_date_only_slots`. Signed count differences require two usable observations. It cannot identify changes that happened between the captures. We currently ship only one real release and claim no measured historical revision rate.
 
 The distinction between observation time and information availability follows [Mellor et al. (2026)](https://pubmed.ncbi.nlm.nih.gov/42832413/): reporting delays and later additions or corrections can make retrospective analyses appear more useful than they would have been in real time. That paper motivates this design; it does not validate our software or supply a delay model for these records.
 

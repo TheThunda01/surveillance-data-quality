@@ -1,18 +1,14 @@
 # Surveillance data quality
 
-This project checks surveillance counts, denominators, missing reports, and revisions before interpreting a curve. It uses Python and the SQLite database engine to make those checks reproducible.
+A weekly positivity curve can move because the number of tests changed. This audit checks the counts behind each point and shows which reports were available on a given date.
 
 ## Why this project
 
-In [From biological measurements to better experiments](https://github.com/TheThunda01/TheThunda01/blob/main/PROJECT_GUIDE.md), this is the public-health starting point: inspect what a surveillance curve represents before asking a model to explain it. Its role is to make denominators, coverage, and reporting time visible.
+![Weekly test counts for three CDC series, with pooled positivity after excluding recent weeks](docs/figures/denominator-context/denominator-context.png)
 
-**Start here:** [Background, rationale, and key themes](docs/project-context.md). Then read [the biology and concepts](docs/biology-and-concepts.md) for an explanation of the measurements.
+The public example follows three national CDC test series for 41 weeks. It compares test counts week by week and recalculates pooled positivity after dropping recent observations. Two smaller synthetic examples show how missing reports and later corrections affect an audit. [Read the figure](docs/denominator-visualization.md)
 
-The main example checks a saved **real aggregate dataset from the Centers for Disease Control and Prevention (CDC)** National Respiratory and Enteric Virus Surveillance System (NREVSS). These aggregate data combine test results into weekly counts. The analysis checks counts and denominators, measures coverage within the requested window, and shows how leaving out recent weeks changes the summaries.
-
-A separate tool uses synthetic report histories to reconstruct which reports were available by a given date. It excludes later revisions that an analyst could not have known at that time.
-
-The original synthetic audit remains as a small, easy-to-inspect test case. The real data and synthetic examples are labeled separately throughout.
+[Run the examples](#quick-start) · [Read the public audit](results_public/report.md) · [Compare two releases](#capture-and-compare-a-future-release) · [Portfolio guide](https://github.com/TheThunda01/TheThunda01/blob/main/PROJECT_GUIDE.md)
 
 ## What it does
 
@@ -117,7 +113,7 @@ python src/public_audit.py --snapshot snapshots/new_capture --output results_new
 python src/compare_snapshots.py --old data/public --new snapshots/new_capture --output results_comparison
 ```
 
-The comparison preserves both releases and reports changed counts, percentages, and availability statuses. Only one real capture is included, so the project cannot estimate a historical revision rate.
+In the comparison output, `changed_slots` counts weeks with different measurements or availability. A second counter, `posted_date_only_slots`, counts weeks with the same reported values and a different posting date. The CSV includes both posting dates. A blank `posted_date_changed` means at least one date was unavailable. The bundled data contain one real capture, so testing this distinction uses synthetic release pairs.
 
 The adapter treats `posted` as release/update-date metadata. The captured metadata do not establish a specimen, testing, or individual laboratory submission time; see the [timing assumptions](docs/assumptions.md).
 
